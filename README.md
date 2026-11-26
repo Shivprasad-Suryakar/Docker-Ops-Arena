@@ -3,11 +3,11 @@
 A self-contained, single-file interactive Docker quiz and practice web app built with a **Container Mission Control (Bento HUD)** UI, **Light/Dark theme** support, and `localStorage` auto-save/resume.
 
 ## Key Features
-* **420 Curated Docker Questions** across **7 domains** (`IMG`, `CNT`, `DFB`, `NET`, `VOL`, `CMP`, `SEC`).
-* **3 Sequential Tiers (`Basic` → `Intermediate` → `Advanced`):** Complete each tier to unlock the next one per domain.
-* **Two Modes:** **Arena Run** (live quiz gameplay with score, streak, and timer) and **Question Bank** (browse and revise questions and explanations).
-* **Auto-Save & Resume:** Progress is saved automatically in browser `localStorage` so you can continue from where you left off.
-* **Zero Setup:** Runs as a single HTML file (`docker-ops-arena.html`) with no backend or build step required.
+- **420 Curated Docker Questions** across **7 domains** (`IMG`, `CNT`, `DFB`, `NET`, `VOL`, `CMP`, `SEC`).
+- **3 Sequential Tiers (`Basic` → `Intermediate` → `Advanced`):** Complete each tier to unlock the next one per domain.
+- **Two Modes:** **Arena Run** (live quiz gameplay with score, streak, and timer) and **Question Bank** (browse and revise questions and explanations).
+- **Auto-Save & Resume:** Progress is saved automatically in browser `localStorage` so you can continue from where you left off.
+- **Zero Setup:** Runs as a single HTML file (`docker-ops-arena.html`) with no backend or build step required.
 
 ## Ways to Open & Play in Browser
 
