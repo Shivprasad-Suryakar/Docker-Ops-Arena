@@ -1,0 +1,1615 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Shivprasad_Suryakar/Docker-Ops-Arena — Container Operations Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace']
+                    },
+                    animation: {
+                        'shake': 'shake 0.42s cubic-bezier(.36,.07,.19,.97) both',
+                        'pop-in': 'popIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) forwards'
+                    },
+                    keyframes: {
+                        shake: {
+                            '10%, 90%': { transform: 'translate3d(-2px, 0, 0)' },
+                            '20%, 80%': { transform: 'translate3d(4px, 0, 0)' },
+                            '30%, 50%, 70%': { transform: 'translate3d(-6px, 0, 0)' },
+                            '40%, 60%': { transform: 'translate3d(6px, 0, 0)' }
+                        },
+                        popIn: {
+                            '0%': { opacity: '0', transform: 'scale(0.97) translateY(6px)' },
+                            '100%': { opacity: '1', transform: 'scale(1) translateY(0)' }
+                        }
+                    }
+                }
+            }
+        };
+    </script>
+    <style>
+        /* Docker Hub / Container Registry Console Light & Dark Theme Tokens */
+        :root {
+            --dk-bg: #f1f5f9;
+            --dk-surface: #ffffff;
+            --dk-surface-alt: #f8fafc;
+            --dk-surface-hover: #eff6ff;
+            --dk-border: #cbd5e1;
+            --dk-text: #0f172a;
+            --dk-text-muted: #475569;
+            --dk-moby: #0284c7;
+            --dk-moby-strong: #0369a1;
+            --dk-moby-bg: #e0f2fe;
+            --dk-cyan: #0891b2;
+            --dk-success: #059669;
+            --dk-success-bg: #d1fae5;
+            --dk-danger: #dc2626;
+            --dk-danger-bg: #fee2e2;
+            --dk-warn: #d97706;
+            --dk-warn-bg: #fef3c7;
+        }
+
+        html.dark {
+            --dk-bg: #070d19;
+            --dk-surface: #0f172a;
+            --dk-surface-alt: #131f38;
+            --dk-surface-hover: #1e293b;
+            --dk-border: #233554;
+            --dk-text: #f1f5f9;
+            --dk-text-muted: #94a3b8;
+            --dk-moby: #38bdf8;
+            --dk-moby-strong: #0284c7;
+            --dk-moby-bg: rgba(14, 165, 233, 0.14);
+            --dk-cyan: #22d3ee;
+            --dk-success: #10b981;
+            --dk-success-bg: rgba(16, 185, 129, 0.15);
+            --dk-danger: #f87171;
+            --dk-danger-bg: rgba(239, 68, 68, 0.16);
+            --dk-warn: #fbbf24;
+            --dk-warn-bg: rgba(245, 158, 11, 0.15);
+        }
+
+        body {
+            background-color: var(--dk-bg);
+            color: var(--dk-text);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            transition: background-color 0.22s ease, color 0.22s ease;
+        }
+
+        .dk-card {
+            background-color: var(--dk-surface);
+            border: 1px solid var(--dk-border);
+            box-shadow: 0 4px 20px -6px rgba(2, 132, 199, 0.08);
+            transition: background-color 0.22s ease, border-color 0.22s ease;
+        }
+
+        .dk-subtle {
+            background-color: var(--dk-surface-alt);
+            border-color: var(--dk-border);
+        }
+
+        .dk-muted {
+            color: var(--dk-text-muted);
+        }
+
+        .dk-border {
+            border-color: var(--dk-border);
+        }
+
+        /* Animated Container Pipeline Track */
+        .container-lane {
+            background: repeating-linear-gradient(
+                90deg,
+                var(--dk-surface-alt) 0px,
+                var(--dk-surface-alt) 22px,
+                rgba(14, 165, 233, 0.07) 22px,
+                rgba(14, 165, 233, 0.07) 24px
+            );
+            border: 1px solid var(--dk-border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container-stream {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 110px;
+            background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.28), transparent);
+            animation: streamFlow 2.4s linear infinite;
+        }
+
+        @keyframes streamFlow {
+            0% { left: -115px; }
+            100% { left: 100%; }
+        }
+
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--dk-surface-alt);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: var(--dk-border);
+            border-radius: 9999px;
+        }
+    </style>
+</head>
+<body class="min-h-screen antialiased">
+
+    <!-- DOCKER REGISTRY / ENGINE TOP CONSOLE BAR -->
+    <header class="dk-card border-x-0 border-t-0 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 pt-3.5">
+            <!-- Top Row: Brand Identity & Utility Controls -->
+            <div class="flex flex-wrap items-center justify-between gap-3 pb-3">
+                <div class="flex items-center gap-2.5 flex-wrap">
+                    <!-- Custom Inline SVG Docker Container Whale Icon -->
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-sky-500 to-cyan-600 text-white flex items-center justify-center shadow-sm shrink-0">
+                        <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                            <path d="M13 3h2.5v2.5H13V3zm-3 0h2.5v2.5H10V3zM7 3h2.5v2.5H7V3zm6 3h2.5v2.5H13V6zm-3 0h2.5v2.5H10V6zM7 6h2.5v2.5H7V6zM4 6h2.5v2.5H4V6zm12 0h2.5v2.5H16V6zm5.4 3.4c-.5-.3-1.6-.4-2.5-.2-.1-.9-.7-1.7-1.4-2.2l-.5-.3-.3.5c-.4.7-.5 1.7-.2 2.5-.4.2-1.1.5-2 .5H2.2c-.3 1.8.2 4.1 1.6 5.8 1.5 1.8 3.7 2.7 6.6 2.7 6.3 0 10.9-2.9 13.1-8.2.9 0 2.7 0 3.6-1.8l.2-.4-.9-.9z"/>
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="text-xs sm:text-sm font-mono font-semibold text-sky-600 dark:text-sky-400">
+                                Shivprasad_Suryakar
+                            </span>
+                            <span class="dk-muted font-mono text-xs">/</span>
+                            <h1 class="text-base sm:text-lg font-extrabold tracking-tight">
+                                Docker-Ops-Arena
+                            </h1>
+                            <span class="px-2 py-0.5 text-[11px] font-mono font-semibold rounded-full bg-sky-500/10 text-sky-600 dark:text-sky-400 border border-sky-500/30">
+                                ENGINE v27 • 420 Qs
+                            </span>
+                        </div>
+                        <p class="text-[11px] font-mono dk-muted hidden sm:block">
+                            docker://registry.ops/arena • Sequential Mastery: Basic → Intermediate → Advanced
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Right Utility Controls: Auto-Save Status, Theme Switcher, Restart Tier, Sound, Reset -->
+                <div class="flex items-center gap-2 flex-wrap">
+                    <span id="autosave-badge" class="px-2.5 py-1 rounded-lg text-[11px] font-mono bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border border-emerald-500/30 flex items-center gap-1.5" title="Run progress is automatically saved in localStorage">
+                        <span id="autosave-dot">💾</span>
+                        <span id="autosave-text">Checkpoint Synced</span>
+                    </span>
+                    <button id="btn-theme" onclick="toggleTheme()" class="dk-card px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 hover:border-sky-500 cursor-pointer" title="Toggle Light / Dark Theme">
+                        <span id="theme-icon">☀️</span>
+                        <span id="theme-label">Light Theme</span>
+                    </button>
+                    <button onclick="confirmRestartCurrentTier()" class="dk-card px-2.5 py-1.5 rounded-lg text-xs font-mono font-semibold hover:border-sky-500 cursor-pointer" title="Restart current topic and tier from Question 1">
+                        ↻ Restart Tier
+                    </button>
+                    <button id="btn-sound" onclick="toggleSound()" class="dk-card px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 hover:border-sky-500 cursor-pointer" title="Toggle Web Audio Sound FX">
+                        <span id="sound-icon">🔊</span>
+                        <span class="hidden md:inline font-mono">SFX</span>
+                    </button>
+                    <button onclick="confirmResetProgress()" class="dk-card px-2.5 py-1.5 rounded-lg text-xs font-mono font-semibold text-rose-600 dark:text-rose-400 hover:border-rose-500 cursor-pointer" title="Reset All Saved Progress & Locks">
+                        Reset
+                    </button>
+                </div>
+            </div>
+
+            <!-- Strictly Two Navigation Tabs: Arena Run & Question Bank -->
+            <div class="flex items-center justify-between border-t dk-border pt-2 pb-2.5 gap-3">
+                <nav class="flex items-center gap-2" aria-label="Workspace Views">
+                    <button id="tab-arena" onclick="switchTab('arena')" class="px-4 py-2 rounded-lg text-xs sm:text-sm font-bold flex items-center gap-2 transition cursor-pointer bg-sky-600 text-white shadow-xs">
+                        <span>🐳</span>
+                        <span>Arena Run</span>
+                        <span class="px-1.5 py-0.5 text-[10px] font-mono rounded bg-white/20 text-white">LIVE</span>
+                    </button>
+                    <button id="tab-bank" onclick="switchTab('bank')" class="px-4 py-2 rounded-lg text-xs sm:text-sm font-bold flex items-center gap-2 transition cursor-pointer dk-subtle dk-muted border dk-border hover:border-sky-500">
+                        <span>📚</span>
+                        <span>Question Bank</span>
+                        <span class="px-1.5 py-0.5 text-[10px] font-mono rounded bg-sky-500/15 text-sky-600 dark:text-sky-400">420</span>
+                    </button>
+                </nav>
+
+                <div class="hidden md:flex items-center gap-2 text-xs font-mono dk-muted">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
+                    <span>daemon: running</span>
+                    <span>•</span>
+                    <span id="header-completed-tiers">0/21 Tiers Cleared</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER WORKSPACE -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+
+        <!-- Container Registry Telemetry Cards -->
+        <section class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div class="dk-card rounded-xl p-3.5 font-mono">
+                <div class="text-[11px] dk-muted flex items-center justify-between">
+                    <span>HIGH SCORE</span>
+                    <span>🏆</span>
+                </div>
+                <div id="stat-high-score" class="text-xl font-extrabold text-sky-600 dark:text-sky-400 mt-1">0</div>
+            </div>
+            <div class="dk-card rounded-xl p-3.5 font-mono">
+                <div class="text-[11px] dk-muted flex items-center justify-between">
+                    <span>MASTERED Qs</span>
+                    <span>📦</span>
+                </div>
+                <div id="stat-mastered" class="text-xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-1">0/420</div>
+            </div>
+            <div class="dk-card rounded-xl p-3.5 font-mono">
+                <div class="text-[11px] dk-muted flex items-center justify-between">
+                    <span>BEST STREAK</span>
+                    <span>⚡</span>
+                </div>
+                <div id="stat-best-streak" class="text-xl font-extrabold text-cyan-600 dark:text-cyan-400 mt-1">0x</div>
+            </div>
+            <div class="dk-card rounded-xl p-3.5 font-mono">
+                <div class="text-[11px] dk-muted flex items-center justify-between">
+                    <span>ACCURACY</span>
+                    <span>🎯</span>
+                </div>
+                <div id="stat-accuracy" class="text-xl font-extrabold text-amber-600 dark:text-amber-400 mt-1">0%</div>
+            </div>
+        </section>
+
+        <!-- Shared Domain & Sequential Difficulty Tier Selector -->
+        <section class="dk-card rounded-2xl p-4 sm:p-5 space-y-4">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+                <div class="space-y-1">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="text-xs font-mono font-extrabold uppercase tracking-wider text-sky-600 dark:text-sky-400">
+                            Container Domain &amp; Sequential Tier
+                        </span>
+                        <span class="text-xs dk-muted font-mono">• 20 Qs / Tier • 60 / Domain • 420 Total</span>
+                    </div>
+                    <p id="tier-unlock-hint" class="text-xs font-mono dk-muted">
+                        Complete Basic (20/20) in a domain to unlock Intermediate; complete Intermediate to unlock Advanced.
+                    </p>
+                </div>
+
+                <!-- Sequential Difficulty Tier Buttons (Basic -> Intermediate -> Advanced) -->
+                <div id="level-controls" class="inline-flex items-center p-1 rounded-xl dk-subtle border dk-border self-start lg:self-auto gap-1">
+                    <button data-level="basic" onclick="selectLevel('basic')" class="level-btn px-3.5 py-1.5 rounded-lg text-xs font-mono font-bold transition cursor-pointer flex items-center gap-1.5">
+                        <span id="lvl-lock-basic">🟢</span>
+                        <span>Basic</span>
+                    </button>
+                    <button data-level="intermediate" onclick="selectLevel('intermediate')" class="level-btn px-3.5 py-1.5 rounded-lg text-xs font-mono font-bold transition cursor-pointer flex items-center gap-1.5">
+                        <span id="lvl-lock-intermediate">🔒</span>
+                        <span>Intermediate</span>
+                    </button>
+                    <button data-level="advanced" onclick="selectLevel('advanced')" class="level-btn px-3.5 py-1.5 rounded-lg text-xs font-mono font-bold transition cursor-pointer flex items-center gap-1.5">
+                        <span id="lvl-lock-advanced">🔒</span>
+                        <span>Advanced</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 7 Docker Domain Cards (IMG, CNT, DFB, NET, VOL, CMP, SEC) -->
+            <div id="topic-pills" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5"></div>
+        </section>
+
+        <!-- TAB 1: ARENA RUN (TIMED CONTAINER ENGINE SPEED-RUN) -->
+        <section id="view-arena" class="space-y-5">
+            <!-- Telemetry & Container Pipeline Track -->
+            <div class="dk-card rounded-2xl p-4 sm:p-5 space-y-3.5">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex items-center gap-2.5 flex-wrap">
+                        <span id="arena-badge" class="px-2.5 py-1 rounded-lg text-xs font-mono font-bold bg-sky-500/15 text-sky-600 dark:text-sky-400 border border-sky-500/30">
+                            BASIC • IMAGES &amp; REGISTRIES
+                        </span>
+                        <span id="arena-q-counter" class="text-xs sm:text-sm font-mono font-semibold dk-muted">
+                            Question 1 / 20
+                        </span>
+                        <span id="checkpoint-resume-pill" class="hidden px-2.5 py-0.5 rounded-full text-[11px] font-mono font-semibold bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 border border-cyan-500/30">
+                            Resumed from saved checkpoint
+                        </span>
+                    </div>
+
+                    <div class="flex items-center gap-4 font-mono text-xs sm:text-sm">
+                        <div>
+                            <span class="dk-muted">SCORE:</span>
+                            <span id="arena-score" class="font-extrabold text-sky-600 dark:text-sky-400 text-base ml-1">0</span>
+                        </div>
+                        <div>
+                            <span class="dk-muted">STREAK:</span>
+                            <span id="arena-streak" class="font-extrabold text-cyan-600 dark:text-cyan-400 text-base ml-1">0x</span>
+                        </div>
+                        <div>
+                            <span class="dk-muted">TIMER:</span>
+                            <span id="arena-timer" class="font-extrabold text-amber-600 dark:text-amber-400 text-base ml-1">24s</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Engine Integrity Health + Container Pipeline Lane -->
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+                    <div class="md:col-span-4 space-y-1">
+                        <div class="flex justify-between text-xs font-mono">
+                            <span class="font-semibold text-emerald-600 dark:text-emerald-400">ENGINE INTEGRITY</span>
+                            <span id="arena-health-text" class="font-bold text-emerald-600 dark:text-emerald-400">100%</span>
+                        </div>
+                        <div class="w-full h-2.5 rounded-full dk-subtle border dk-border overflow-hidden">
+                            <div id="arena-health-bar" class="h-full bg-emerald-500 transition-all duration-300" style="width: 100%"></div>
+                        </div>
+                    </div>
+
+                    <div class="md:col-span-8 container-lane h-10 rounded-xl flex items-center justify-between px-3.5">
+                        <div class="container-stream"></div>
+                        <div id="runner-avatar" class="relative z-10 flex items-center gap-2 font-mono text-xs font-bold transition-transform duration-300">
+                            <span class="px-2.5 py-0.5 rounded-md bg-sky-600 text-white shadow-xs">
+                                🐳 MOBY-RUNNER
+                            </span>
+                            <span id="runner-status" class="dk-muted hidden sm:inline">Container healthy &amp; running...</span>
+                        </div>
+                        <div class="relative z-10 font-mono text-xs dk-muted flex items-center gap-1.5">
+                            <span>🏁 TIER DEPLOY</span>
+                            <span id="rollout-pct" class="font-bold text-emerald-600 dark:text-emerald-400">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Question Card -->
+            <div id="question-card" class="dk-card rounded-2xl p-5 sm:p-7 space-y-5">
+                <div class="flex flex-wrap items-center justify-between gap-2">
+                    <div class="flex items-center gap-2">
+                        <span id="q-id-pill" class="px-2.5 py-1 rounded-lg dk-subtle border dk-border font-mono text-xs font-bold text-sky-600 dark:text-sky-400">
+                            IMG-BAS-01
+                        </span>
+                        <span id="q-tag-pill" class="px-2.5 py-1 rounded-lg bg-cyan-500/15 text-cyan-700 dark:text-cyan-300 border border-cyan-500/30 font-mono text-xs">
+                            Image Pull
+                        </span>
+                    </div>
+                    <div class="text-xs font-mono dk-muted">
+                        Shortcuts: <span class="font-semibold">[1-4]</span> or <span class="font-semibold">[A-D]</span> • <span class="font-semibold">[Enter]</span> next
+                    </div>
+                </div>
+
+                <h2 id="question-text" class="text-lg sm:text-xl font-bold leading-snug">
+                    Loading Docker challenge...
+                </h2>
+
+                <!-- 4 Answer Choices Grid -->
+                <div id="options-grid" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+
+                <!-- Explanation & Next Action Box -->
+                <div id="explanation-box" class="hidden rounded-xl p-4 border animate-pop-in space-y-2.5">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div id="feedback-title" class="font-mono font-extrabold text-xs sm:text-sm"></div>
+                        <button id="btn-next-q" onclick="nextQuestion()" class="px-4 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-700 text-white font-mono text-xs sm:text-sm font-bold cursor-pointer self-start sm:self-auto">
+                            Next Container →
+                        </button>
+                    </div>
+                    <p id="explanation-text" class="text-xs sm:text-sm font-mono dk-subtle border rounded-lg p-3 leading-relaxed"></p>
+                </div>
+            </div>
+
+            <!-- Tier Completion Summary Card (Shown on completing all 20 Qs in a Tier) -->
+            <div id="tier-complete-card" class="hidden dk-card rounded-2xl p-6 sm:p-8 border-2 border-emerald-500/50 animate-pop-in space-y-5">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div class="space-y-1">
+                        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-mono text-xs font-bold">
+                            <span>🏆 TIER DEPLOYMENT VERIFIED</span>
+                        </div>
+                        <h3 id="tier-complete-title" class="text-xl sm:text-2xl font-extrabold">
+                            Images &amp; Registries — BASIC Cleared!
+                        </h3>
+                        <p id="tier-complete-desc" class="text-sm dk-muted">
+                            You completed all 20 questions in this tier. Your next sequential tier is now unlocked!
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-3 font-mono">
+                        <div class="px-4 py-2.5 rounded-xl dk-subtle border dk-border text-center">
+                            <div class="text-[10px] dk-muted">TIER SCORE</div>
+                            <div id="tier-complete-score" class="text-lg font-extrabold text-sky-600 dark:text-sky-400">0</div>
+                        </div>
+                        <div class="px-4 py-2.5 rounded-xl dk-subtle border dk-border text-center">
+                            <div class="text-[10px] dk-muted">MASTERED</div>
+                            <div id="tier-complete-mastered" class="text-lg font-extrabold text-emerald-600 dark:text-emerald-400">20/20</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-wrap items-center gap-3 pt-2">
+                    <button id="btn-unlock-next-tier" onclick="proceedToNextUnlockedTier()" class="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-mono text-xs sm:text-sm font-bold cursor-pointer shadow-sm">
+                        🔓 Start Next Tier →
+                    </button>
+                    <button onclick="restartCurrentTierNow()" class="dk-card px-4 py-2.5 rounded-xl font-mono text-xs sm:text-sm font-semibold hover:border-sky-500 cursor-pointer">
+                        ↻ Replay This Tier
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: QUESTION BANK BROWSER (ALL 20 Qs PER DOMAIN & TIER) -->
+        <section id="view-bank" class="hidden space-y-4">
+            <div class="dk-card rounded-2xl p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-3">
+                <div>
+                    <h2 id="bank-heading" class="text-lg font-bold">
+                        Question Bank — Images &amp; Registries (BASIC)
+                    </h2>
+                    <p class="text-xs dk-muted mt-0.5">
+                        Inspect all 20 curated Docker questions, verified answers, and explanations for the selected domain &amp; tier.
+                    </p>
+                </div>
+                <div class="flex items-center gap-2 flex-wrap">
+                    <input
+                        id="bank-search"
+                        type="text"
+                        oninput="renderQuestionBank()"
+                        placeholder="Search docker commands, flags, tags..."
+                        class="px-3 py-1.5 rounded-xl dk-subtle border dk-border text-xs sm:text-sm font-mono focus:outline-none focus:border-sky-500 w-full sm:w-64"
+                    />
+                    <button onclick="switchTab('arena')" class="px-3.5 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white font-mono text-xs font-bold cursor-pointer">
+                        Run Arena ⚡
+                    </button>
+                </div>
+            </div>
+            <div id="bank-list" class="space-y-3"></div>
+        </section>
+    </main>
+
+    <!-- CUSTOM MODAL DIALOG (NO NATIVE ALERT / CONFIRM) -->
+    <div id="custom-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs">
+        <div class="dk-card rounded-2xl max-w-md w-full p-6 space-y-4 animate-pop-in">
+            <div class="flex items-center gap-3">
+                <div id="modal-icon" class="w-11 h-11 rounded-xl dk-subtle border dk-border flex items-center justify-center text-2xl">🐳</div>
+                <h3 id="modal-title" class="text-lg font-bold">Notice</h3>
+            </div>
+            <p id="modal-message" class="text-sm dk-muted leading-relaxed"></p>
+            <div id="modal-actions" class="flex items-center justify-end gap-2.5 pt-2"></div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * =====================================================================
+         * DOCKER OPS ARENA — SINGLE-FILE CONTAINER QUIZ & CHECKPOINT ENGINE
+         * 7 Docker Domains × 3 Sequential Tiers × 20 Questions = 420 Total
+         * Strict Sequential Progression: Basic -> Intermediate -> Advanced per domain
+         * =====================================================================
+         */
+
+        const TOPICS = [
+            { id: 'img', name: 'Images & Registries', short: 'Images & Reg', code: 'IMG', icon: '💿' },
+            { id: 'cnt', name: 'Container Lifecycle', short: 'Containers', code: 'CNT', icon: '📦' },
+            { id: 'dfb', name: 'Dockerfile & Builds', short: 'Dockerfile', code: 'DFB', icon: '🏗️' },
+            { id: 'net', name: 'Docker Networking', short: 'Networking', code: 'NET', icon: '🌐' },
+            { id: 'vol', name: 'Volumes & Storage', short: 'Volumes', code: 'VOL', icon: '💾' },
+            { id: 'cmp', name: 'Docker Compose', short: 'Compose', code: 'CMP', icon: '🐙' },
+            { id: 'sec', name: 'Security & Prod Ops', short: 'Security & Ops', code: 'SEC', icon: '🛡️' }
+        ];
+
+        const LEVELS = ['basic', 'intermediate', 'advanced'];
+
+        const SEED_QUESTIONS = {
+            img: {
+                basic: [
+                    { q: "Which command downloads an image from Docker Hub without starting a container?", opts: ["docker pull nginx:alpine", "docker fetch nginx:alpine", "docker get nginx:alpine", "docker clone nginx:alpine"], ans: 0, tag: "Image Pull", exp: "`docker pull <image>:<tag>` downloads the image layers from the configured registry." },
+                    { q: "Which command lists all Docker images stored locally on the host?", opts: ["docker images", "docker ps -a", "docker containers", "docker registry ls"], ans: 0, tag: "Image Listing", exp: "`docker images` (or `docker image ls`) displays local repositories, tags, image IDs, and sizes." },
+                    { q: "Which command removes a local image named `myapp:1.0`?", opts: ["docker rmi myapp:1.0", "docker rm myapp:1.0", "docker delete myapp:1.0", "docker prune myapp:1.0"], ans: 0, tag: "Remove Image", exp: "`docker rmi` (or `docker image rm`) removes one or more local images." },
+                    { q: "What default tag does Docker use when you run `docker pull ubuntu` without specifying a tag?", opts: ["latest", "stable", "main", "default"], ans: 0, tag: "Default Tag", exp: "When no tag is supplied, Docker defaults to the `latest` tag." },
+                    { q: "Which command creates a new tag `myuser/api:v2` pointing to an existing image `api:dev`?", opts: ["docker tag api:dev myuser/api:v2", "docker label api:dev myuser/api:v2", "docker alias api:dev myuser/api:v2", "docker rename api:dev myuser/api:v2"], ans: 0, tag: "Image Tagging", exp: "`docker tag SOURCE_IMAGE[:TAG] TARGET_IMAGE[:TAG]` creates an additional tag reference to the same image ID." }
+                ],
+                intermediate: [
+                    { q: "Which command displays the history and layer sizes of an image `nginx:alpine`?", opts: ["docker history nginx:alpine", "docker layers nginx:alpine", "docker log nginx:alpine", "docker tree nginx:alpine"], ans: 0, tag: "Image Layers", exp: "`docker history <image>` shows each layer's creation command, timestamp, and size." },
+                    { q: "Which command exports a Docker image to a portable tar archive file?", opts: ["docker save -o app.tar myapp:latest", "docker export -o app.tar myapp:latest", "docker archive myapp:latest > app.tar", "docker pack myapp:latest app.tar"], ans: 0, tag: "Save Image Tar", exp: "`docker save` packages an image (including layers and tags) into a tar archive; `docker export` exports a container's filesystem." },
+                    { q: "Which command loads an image back into the local engine from `app.tar`?", opts: ["docker load -i app.tar", "docker import app.tar", "docker restore -i app.tar", "docker unarchive app.tar"], ans: 0, tag: "Load Image Tar", exp: "`docker load -i app.tar` restores images and tags from a `docker save` archive." },
+                    { q: "How do you pull an image strictly by its immutable SHA-256 content digest?", opts: ["docker pull alpine@sha256:6457d53fb065d6f250e1504b9bc42d5b6c65941d57532c072d929dd0628977d0", "docker pull alpine#sha256:6457d53f", "docker pull --digest alpine:6457d53f", "docker pull alpine:sha256"], ans: 0, tag: "Immutable Digests", exp: "Using `<image>@sha256:<digest>` guarantees pulling the exact immutable manifest digest." },
+                    { q: "Which command deletes all unused (both dangling and unreferenced) images?", opts: ["docker image prune -a", "docker image prune", "docker rmi --all", "docker system clean"], ans: 0, tag: "Prune Images", exp: "`docker image prune -a` removes all images not referenced by any existing container." }
+                ],
+                advanced: [
+                    { q: "What is a 'dangling' Docker image (`<none>:<none>`)?", opts: ["An untagged image layer no longer referenced by any tagged image", "An image running in privileged mode", "A corrupted registry manifest", "A paused container snapshot"], ans: 0, tag: "Dangling Images", exp: "Dangling images occur when a new build replaces an existing tag, leaving the old image untagged." },
+                    { q: "What does a Docker 'manifest list' (OCI Image Index) enable?", opts: ["A single tag like `alpine:3.20` to resolve to the matching OS/CPU architecture (`amd64`, `arm64`)", "Encrypting image layers at rest", "Running containers without a kernel", "Auto-scaling replicas"], ans: 0, tag: "Multi-Arch Manifests", exp: "A manifest list maps a single image tag to multiple platform-specific manifests (`linux/amd64`, `linux/arm64`, etc.)." },
+                    { q: "Which command builds and pushes a multi-architecture image (`linux/amd64,linux/arm64`) using Buildx?", opts: ["docker buildx build --platform linux/amd64,linux/arm64 -t org/app:1.0 --push .", "docker build --multi-arch -t org/app:1.0 .", "docker manifest build --all org/app:1.0", "docker engine buildx --push org/app:1.0"], ans: 0, tag: "Buildx Multi-Platform", exp: "`docker buildx build --platform ... --push` builds across architectures and pushes the multi-arch manifest list." },
+                    { q: "Why are read-only image layers shared across multiple containers from the same base image?", opts: ["OverlayFS mounts lower image directories read-only and gives each container a thin writable upper layer", "Docker copies all gigabytes per container", "Images are stored in RAM only", "Linux hardlinks `/proc`"], ans: 0, tag: "Copy-on-Write Layers", exp: "Union filesystems like `overlay2` share read-only `lowerdir` layers across containers with copy-on-write." },
+                    { q: "Which command scans a local image for known CVEs using Docker Scout?", opts: ["docker scout cves myapp:latest", "docker scan --audit myapp:latest", "docker inspect --cve myapp:latest", "docker verify --sec myapp:latest"], ans: 0, tag: "Vulnerability Scanning", exp: "`docker scout cves <image>` analyzes image packages against vulnerability databases." }
+                ]
+            },
+            cnt: {
+                basic: [
+                    { q: "Which command starts a container in detached (background) mode?", opts: ["docker run -d nginx", "docker run -b nginx", "docker start -bg nginx", "docker bg nginx"], ans: 0, tag: "Detached Mode", exp: "`-d` (`--detach`) runs the container in the background and prints its container ID." },
+                    { q: "Which command shows all containers including stopped/exited ones?", opts: ["docker ps -a", "docker ps", "docker ls --stopped", "docker status --all"], ans: 0, tag: "List Containers", exp: "`docker ps` lists only running containers; `-a` (`--all`) includes stopped containers." },
+                    { q: "Which command maps host port `8080` to container port `80`?", opts: ["docker run -p 8080:80 nginx", "docker run -p 80:8080 nginx", "docker run --port 8080->80 nginx", "docker expose 8080:80 nginx"], ans: 0, tag: "Port Publishing", exp: "`-p HOST_PORT:CONTAINER_PORT` (`-p 8080:80`) forwards host port 8080 to container port 80." },
+                    { q: "Which command opens an interactive Bash shell inside a running container named `web`?", opts: ["docker exec -it web bash", "docker run -it web bash", "docker attach --shell web", "docker ssh web"], ans: 0, tag: "Container Exec", exp: "`docker exec -it <container> <cmd>` executes a new interactive command inside a running container." },
+                    { q: "Which command streams live logs from a container named `api`?", opts: ["docker logs -f api", "docker tail api", "docker stream api", "docker output -l api"], ans: 0, tag: "Container Logs", exp: "`docker logs -f` (`--follow`) continuously streams stdout/stderr from the container." }
+                ],
+                intermediate: [
+                    { q: "What does `docker run --rm alpine echo hi` do once the command finishes?", opts: ["Automatically deletes the container upon exit", "Removes the `alpine` image", "Restarts the container infinitely", "Saves a snapshot image"], ans: 0, tag: "Ephemeral Containers", exp: "`--rm` automatically cleans up the container filesystem when the container exits." },
+                    { q: "How does `docker stop` terminate a container by default?", opts: ["Sends `SIGTERM` to PID 1, waits 10 seconds, then sends `SIGKILL`", "Immediately sends `SIGKILL`", "Pauses CPU scheduling", "Reboots the Docker daemon"], ans: 0, tag: "Graceful Shutdown", exp: "`docker stop` sends `SIGTERM` for graceful cleanup, falling back to `SIGKILL` after the grace period (default 10s)." },
+                    { q: "Which restart policy restarts a container unless it was explicitly stopped by a user?", opts: ["unless-stopped", "on-failure", "always", "no"], ans: 0, tag: "Restart Policies", exp: "`--restart unless-stopped` restarts containers on crash or daemon reboot unless manually stopped." },
+                    { q: "Which command shows live CPU, memory, network, and block I/O usage for running containers?", opts: ["docker stats", "docker top", "docker metrics", "docker inspect --usage"], ans: 0, tag: "Live Resource Stats", exp: "`docker stats` streams real-time resource consumption metrics for containers." },
+                    { q: "Which command copies `/etc/nginx/nginx.conf` from container `proxy` to the current host directory?", opts: ["docker cp proxy:/etc/nginx/nginx.conf .", "docker scp proxy:/etc/nginx/nginx.conf .", "docker pull proxy:/etc/nginx/nginx.conf .", "docker export proxy:/etc/nginx/nginx.conf ."], ans: 0, tag: "Container Copy", exp: "`docker cp <container>:<src_path> <host_dest>` copies files between containers and the host." }
+                ],
+                advanced: [
+                    { q: "What does container exit code `137` (`128 + 9`) typically indicate?", opts: ["The container received `SIGKILL` (often killed by the Linux OOM killer or `docker kill`)", "Syntax error in Dockerfile", "Image not found in registry", "Graceful `SIGTERM` exit"], ans: 0, tag: "Exit Code 137", exp: "Exit code `137` means termination via signal 9 (`SIGKILL`), commonly triggered when exceeding cgroup memory limits." },
+                    { q: "Why can running a shell wrapper (`sh -c 'node server.js'`) as PID 1 cause slow `docker stop` timeouts?", opts: ["`/bin/sh` may not forward `SIGTERM` to child processes, causing a 10s wait until `SIGKILL`", "PID 1 cannot open TCP sockets", "`sh` disables stdout buffering", "Docker blocks signals to shell scripts"], ans: 0, tag: "PID 1 & Signal Forwarding", exp: "Using exec-form `CMD [\"node\", \"server.js\"]` or `--init` (`tini`) ensures `SIGTERM` reaches the app and reaps zombies." },
+                    { q: "What does passing `--init` to `docker run` inject into the container?", opts: ["A lightweight init process (`tini`) as PID 1 to reap zombie processes and forward signals", "Systemd with full unit files", "An SSH server", "A local registry mirror"], ans: 0, tag: "Tiny Init PID 1", exp: "`--init` runs `tini` as PID 1, handling zombie reaping and signal propagation cleanly." },
+                    { q: "Which command returns only the IP address of container `db` using Go templates?", opts: ["docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' db", "docker ps --ip db", "docker net ip db", "docker top db --ip"], ans: 0, tag: "Go Template Inspect", exp: "`docker inspect -f` formats JSON metadata using Go's `text/template` syntax." },
+                    { q: "What does `docker update --memory 512m --memory-swap 512m web` do?", opts: ["Dynamically updates memory limits of a running container without recreating it", "Rebuilds the image with 512MB RAM", "Clears container page cache", "Moves container to another node"], ans: 0, tag: "Live Resource Update", exp: "`docker update` modifies cgroup resource limits on existing containers dynamically." }
+                ]
+            },
+            dfb: {
+                basic: [
+                    { q: "Which Dockerfile instruction defines the base image for subsequent instructions?", opts: ["FROM", "BASE", "IMAGE", "SOURCE"], ans: 0, tag: "Base Image", exp: "Every valid Dockerfile must begin with a `FROM` instruction (ignoring global `ARG`s)." },
+                    { q: "Which instruction executes commands during `docker build` to install packages and create image layers?", opts: ["RUN", "CMD", "ENTRYPOINT", "EXEC"], ans: 0, tag: "Build Execution", exp: "`RUN` executes commands during image build time and commits the filesystem changes as a new layer." },
+                    { q: "Which instruction sets the working directory for `RUN`, `CMD`, `ENTRYPOINT`, `COPY`, and `ADD`?", opts: ["WORKDIR", "CD", "PWD", "DIR"], ans: 0, tag: "Working Directory", exp: "`WORKDIR /app` sets (and creates if needed) the active directory inside the container." },
+                    { q: "Which file excludes unwanted files/directories from being sent to the Docker build context?", opts: [".dockerignore", ".gitignore", ".dockerfileignore", ".exclude"], ans: 0, tag: "Build Context", exp: "`.dockerignore` prevents large/sensitive files (like `node_modules` or `.git`) from entering the build context." },
+                    { q: "Which instruction documents the network port(s) a container listens on at runtime?", opts: ["EXPOSE 8080", "PUBLISH 8080", "OPEN 8080", "LISTEN 8080"], ans: 0, tag: "Metadata Port", exp: "`EXPOSE` adds port metadata to the image; `-p` is still needed at runtime to publish ports to the host." }
+                ],
+                intermediate: [
+                    { q: "How do `COPY` and `ADD` differ in a Dockerfile?", opts: ["`COPY` simply copies local files; `ADD` also auto-extracts local tar archives and supports remote URLs", "`ADD` is faster for all files", "`COPY` works only for directories", "They are completely identical"], ans: 0, tag: "COPY vs ADD", exp: "Best practice favors `COPY` for transparency unless tar auto-extraction is specifically needed." },
+                    { q: "Why should `COPY package.json .` and `RUN npm install` appear BEFORE `COPY . .`?", opts: ["So dependency installation stays cached when only application source code changes", "Because `COPY . .` deletes `package.json`", "Docker requires alphabetical order", "To reduce base image OS size"], ans: 0, tag: "Layer Caching", exp: "Ordering rarely-changed dependency manifests before fast-changing source files maximizes build cache hits." },
+                    { q: "How do `ENTRYPOINT` and `CMD` interact when both are specified in exec form?", opts: ["`CMD` arguments are appended as default parameters to `ENTRYPOINT`", "`CMD` completely overwrites `ENTRYPOINT`", "`ENTRYPOINT` is ignored at runtime", "Build fails with syntax error"], ans: 0, tag: "ENTRYPOINT + CMD", exp: "`ENTRYPOINT` defines the fixed executable while `CMD` supplies default flags that `docker run` args can override." },
+                    { q: "What is the key difference between `ARG` and `ENV` in a Dockerfile?", opts: ["`ARG` is available only during `docker build`; `ENV` persists into running containers", "`ENV` works only during build", "`ARG` encrypts secrets in image layers", "`ENV` cannot be overridden"], ans: 0, tag: "ARG vs ENV", exp: "`ARG` defines build-time variables (`--build-arg`), whereas `ENV` sets environment variables inside the final image." },
+                    { q: "Which Dockerfile instruction configures a command to verify container application health?", opts: ["HEALTHCHECK", "LIVENESS", "PROBE", "MONITOR"], ans: 0, tag: "Healthchecks", exp: "`HEALTHCHECK CMD curl -f http://localhost/ || exit 1` lets Docker monitor container health status." }
+                ],
+                advanced: [
+                    { q: "What is the primary benefit of a multi-stage Dockerfile (`FROM golang:1.23 AS builder` → `FROM scratch`)?", opts: ["Copies only the compiled artifact into a minimal runtime image, stripping compilers and build tools", "Runs two containers simultaneously", "Enables automatic rollback", "Bypasses registry authentication"], ans: 0, tag: "Multi-Stage Builds", exp: "Multi-stage builds dramatically shrink image size and attack surface by leaving build toolchains behind." },
+                    { q: "Why should `apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*` be combined in one `RUN`?", opts: ["Deleting files in a later `RUN` layer does not shrink earlier layers already committed", "Separate `RUN` instructions fail on Debian", "It speeds up DNS resolution", "Docker limits Dockerfiles to 3 layers"], ans: 0, tag: "Layer Size Hygiene", exp: "Because image layers are immutable, cleanup must happen in the same `RUN` step to prevent bloated layers." },
+                    { q: "Which BuildKit mount flag lets you pass a secret token during `RUN` without baking it into image layers?", opts: ["RUN --mount=type=secret,id=npmrc ...", "RUN --secret-env=npmrc ...", "ARG --hidden npmrc", "ENV --ephemeral npmrc"], ans: 0, tag: "BuildKit Secrets", exp: "`--mount=type=secret` mounts secret data temporarily into the build container without persisting it in any layer." },
+                    { q: "Which BuildKit mount caches package manager downloads across builds (`--mount=type=cache`)?", opts: ["RUN --mount=type=cache,target=/root/.cache/pip pip install -r requirements.txt", "RUN --cache-dir=/tmp pip install", "VOLUME /root/.cache/pip", "CACHE /root/.cache/pip"], ans: 0, tag: "BuildKit Cache Mounts", exp: "`--mount=type=cache` preserves compiler/package caches across builds even when the layer cache invalidates." },
+                    { q: "Why is `CMD [\"./app\"]` (exec form) preferred over `CMD ./app` (shell form)?", opts: ["Exec form launches `./app` directly as PID 1 without wrapping it in `/bin/sh -c`", "Shell form cannot read `ENV` variables", "Exec form skips `ENTRYPOINT`", "Shell form is deprecated in Compose"], ans: 0, tag: "Exec vs Shell Form", exp: "Exec form avoids an extra `/bin/sh -c` parent process so signals (`SIGTERM`) go directly to your binary." }
+                ]
+            },
+            net: {
+                basic: [
+                    { q: "Which network driver is used by default for standalone containers on a single host?", opts: ["bridge", "host", "overlay", "macvlan"], ans: 0, tag: "Default Network", exp: "Standalone containers attach to the default `bridge` network unless `--network` is specified." },
+                    { q: "Which command lists all Docker networks on the host?", opts: ["docker network ls", "docker net list", "docker ps --networks", "docker inspect --net"], ans: 0, tag: "List Networks", exp: "`docker network ls` displays network IDs, names, drivers, and scopes." },
+                    { q: "Which command creates a user-defined bridge network named `app-net`?", opts: ["docker network create app-net", "docker net add app-net", "docker bridge create app-net", "docker network init app-net"], ans: 0, tag: "Create Network", exp: "`docker network create <name>` creates a user-defined bridge network by default." },
+                    { q: "How does a container on `--network host` access the host's network stack?", opts: ["It shares the host's network namespace directly with no port mapping isolation", "It creates a private NAT subnet", "It disables all network interfaces", "It tunnels over VXLAN"], ans: 0, tag: "Host Network", exp: "`--network host` removes network isolation between the container and the Docker host." },
+                    { q: "Which network mode completely disables all networking for a container?", opts: ["--network none", "--network off", "--network isolated", "--no-net"], ans: 0, tag: "None Network", exp: "`--network none` gives the container only a loopback interface (`lo`) with no external connectivity." }
+                ],
+                intermediate: [
+                    { q: "What major feature do user-defined bridge networks have over the legacy default `bridge` network?", opts: ["Automatic embedded DNS service discovery by container name/alias", "Direct access to host hardware NICs", "Built-in TLS termination", "Unlimited bandwidth"], ans: 0, tag: "Embedded DNS", exp: "User-defined networks provide automatic DNS resolution (`127.0.0.11`) so containers resolve each other by name." },
+                    { q: "Which command connects an already running container `worker` to network `backend-net`?", opts: ["docker network connect backend-net worker", "docker attach network backend-net worker", "docker link worker backend-net", "docker update --net backend-net worker"], ans: 0, tag: "Hot-Attach Network", exp: "`docker network connect <network> <container>` attaches a live container to an additional network." },
+                    { q: "Which command shows subnet, gateway, and attached containers for `app-net`?", opts: ["docker network inspect app-net", "docker network info app-net", "docker inspect --bridge app-net", "docker net status app-net"], ans: 0, tag: "Inspect Network", exp: "`docker network inspect <name>` outputs IPAM subnet/gateway config and connected endpoints." },
+                    { q: "How can a container on Docker Desktop or Linux (with `host-gateway`) reach a service on the host?", opts: ["host.docker.internal", "localhost.container", "127.0.0.1", "gateway.local"], ans: 0, tag: "Host Gateway DNS", exp: "`host.docker.internal` resolves to the host's internal IP address from inside containers." },
+                    { q: "Which flag assigns a custom subnet `172.28.0.0/16` when creating a network?", opts: ["docker network create --subnet=172.28.0.0/16 custom-net", "docker network create --cidr=172.28.0.0/16 custom-net", "docker network create --ip-range=172.28.0.0/16 custom-net", "docker network create --net=172.28.0.0/16 custom-net"], ans: 0, tag: "Custom Subnet IPAM", exp: "`--subnet` configures the IPAM CIDR block for the Docker network." }
+                ],
+                advanced: [
+                    { q: "Which Docker network driver enables multi-host container communication across Swarm nodes using VXLAN?", opts: ["overlay", "bridge", "ipvlan", "null"], ans: 0, tag: "Overlay Networking", exp: "The `overlay` driver encapsulates Layer-2 frames in VXLAN packets across multiple Docker daemons." },
+                    { q: "What does `--internal` do when creating a Docker network (`docker network create --internal isolated`)?", opts: ["Blocks external internet/outside routing while allowing container-to-container traffic on that network", "Restricts access to root containers only", "Uses host loopback", "Enables BGP peering"], ans: 0, tag: "Internal Networks", exp: "`--internal` prevents containers on that network from communicating outside the bridge." },
+                    { q: "How does `macvlan` networking expose a container on the physical LAN?", opts: ["Assigns the container its own MAC address so it appears as a physical device on the parent NIC", "Uses `iptables` MASQUERADE NAT", "Routes via SOCKS5 proxy", "Shares host IP via port forwarding"], ans: 0, tag: "Macvlan Driver", exp: "`macvlan` binds directly to a parent interface with a unique MAC address on the physical network." },
+                    { q: "What does `--network container:vpn` do when launching a new container?", opts: ["Shares the exact network namespace (IP, ports, localhost) of the `vpn` container", "Creates a bridge named `vpn`", "Connects over WireGuard automatically", "Clones the `vpn` image"], ans: 0, tag: "Shared Container Netns", exp: "`--network container:<name>` places the new container inside the target container's network namespace (sidecar pattern)." },
+                    { q: "What internal resolver IP handles DNS queries inside containers on user-defined networks?", opts: ["127.0.0.11", "169.254.169.254", "172.17.0.1", "8.8.8.8"], ans: 0, tag: "Embedded DNS IP", exp: "Docker configures `/etc/resolv.conf` inside user-defined network containers to query `127.0.0.11`." }
+                ]
+            },
+            vol: {
+                basic: [
+                    { q: "Why is persistent storage (volumes or bind mounts) needed for stateful containers like databases?", opts: ["A container's writable layer is deleted when the container is removed", "Containers cannot write to `/var`", "Docker resets files every 60 seconds", "Images are read-only forever"], ans: 0, tag: "Data Persistence", exp: "Container writable layers are ephemeral and vanish on `docker rm`, whereas volumes persist independently." },
+                    { q: "Which command creates a Docker-managed named volume called `pgdata`?", opts: ["docker volume create pgdata", "docker vol new pgdata", "docker storage create pgdata", "docker disk init pgdata"], ans: 0, tag: "Create Volume", exp: "`docker volume create <name>` provisions a named volume managed by Docker." },
+                    { q: "Which flag mounts named volume `pgdata` to `/var/lib/postgresql/data` inside a container?", opts: ["-v pgdata:/var/lib/postgresql/data", "-v /var/lib/postgresql/data:pgdata", "-m pgdata->/var/lib/postgresql/data", "--disk pgdata:/var/lib/postgresql/data"], ans: 0, tag: "Mount Volume", exp: "`-v VOLUME_NAME:CONTAINER_PATH` attaches the named volume to the target directory." },
+                    { q: "Which command lists all Docker volumes on the host?", opts: ["docker volume ls", "docker volumes", "docker df -v", "docker mount ls"], ans: 0, tag: "List Volumes", exp: "`docker volume ls` lists local volumes and their storage drivers." },
+                    { q: "How do you mount a volume as read-only inside a container?", opts: ["-v config-vol:/etc/app:ro", "-v config-vol:/etc/app:readonly", "-v config-vol:/etc/app:lock", "--ro-volume config-vol:/etc/app"], ans: 0, tag: "Read-Only Mount", exp: "Appending `:ro` (or `readonly` in `--mount`) prevents the container from modifying mounted files." }
+                ],
+                intermediate: [
+                    { q: "How does a bind mount differ from a Docker-managed named volume?", opts: ["A bind mount maps an exact host path (like `./src:/app`), whereas named volumes live in Docker's storage area", "Bind mounts only work on Windows", "Named volumes vanish on container stop", "Bind mounts cannot be read-only"], ans: 0, tag: "Volumes vs Bind Mounts", exp: "Bind mounts depend on specific host filesystem paths; named volumes are managed by Docker under `/var/lib/docker/volumes`." },
+                    { q: "What happens when you mount an empty named volume over a non-empty container directory?", opts: ["Docker copies the existing directory contents from the image into the empty volume first", "The container fails to start", "The existing image files are deleted", "Nothing is mounted"], ans: 0, tag: "Volume Population", exp: "Named volumes automatically initialize with pre-existing image files at the mount path (bind mounts do not)." },
+                    { q: "Which `--mount` syntax mounts a high-speed in-memory `tmpfs` filesystem at `/tmp/cache`?", opts: ["--mount type=tmpfs,destination=/tmp/cache", "--mount type=ram,target=/tmp/cache", "-v tmpfs:/tmp/cache:mem", "--tmpfs-vol /tmp/cache"], ans: 0, tag: "tmpfs Mounts", exp: "`type=tmpfs` stores temporary sensitive or scratch data purely in host memory without touching disk." },
+                    { q: "Which command removes all unused local volumes not attached to any container?", opts: ["docker volume prune", "docker volume rm --all", "docker clean volumes", "docker system purge-vol"], ans: 0, tag: "Prune Volumes", exp: "`docker volume prune` deletes anonymous/unused volumes (add `-a` in newer versions for all unused named volumes)." },
+                    { q: "Which command shows disk space used by images, containers, build cache, and volumes?", opts: ["docker system df", "docker storage status", "docker du -h", "docker volume stats"], ans: 0, tag: "Docker Disk Usage", exp: "`docker system df` breaks down space consumption and reclaimable space across Docker objects." }
+                ],
+                advanced: [
+                    { q: "What is the recommended Linux storage driver for modern Docker engines on `ext4` or `xfs`?", opts: ["overlay2", "aufs", "devicemapper", "vfs"], ans: 0, tag: "Storage Drivers", exp: "`overlay2` is the default, high-performance union filesystem driver on modern Linux kernels." },
+                    { q: "Why is the `vfs` storage driver discouraged for production workloads?", opts: ["It performs full deep copies of every layer without copy-on-write, causing slow builds and high disk usage", "It supports only 1 container", "It disables networking", "It requires ZFS pools"], ans: 0, tag: "VFS Overhead", exp: "`vfs` lacks copy-on-write and duplicates entire directories per layer." },
+                    { q: "How do you cleanly back up named volume `db_vol` into `backup.tar.gz` on the host?", opts: ["docker run --rm -v db_vol:/data:ro -v $(pwd):/backup alpine tar -czf /backup/backup.tar.gz -C /data .", "docker volume export db_vol > backup.tar.gz", "docker save db_vol -o backup.tar.gz", "docker cp db_vol:/ backup.tar.gz"], ans: 0, tag: "Volume Backup Pattern", exp: "Running an ephemeral helper container mounting the volume `:ro` and host output dir is the standard backup pattern." },
+                    { q: "What does `docker rm -v web` do compared to `docker rm web`?", opts: ["Also removes anonymous volumes created by `web`, while preserving named volumes", "Deletes all named volumes on the host", "Removes the base image", "Exports volume logs"], ans: 0, tag: "Anonymous Volume Cleanup", exp: "`docker rm -v` removes associated anonymous volumes while keeping explicitly named volumes intact." },
+                    { q: "In SELinux-enabled hosts (RHEL/Fedora), what does `:z` or `:Z` on a bind mount (`-v ./data:/data:Z`) do?", opts: ["Relabels the host directory SELinux context so the container can access it", "Compresses files with gzip", "Enables ZFS snapshots", "Encrypts the volume"], ans: 0, tag: "SELinux Volume Labels", exp: "`:z` (shared) and `:Z` (private) configure SELinux MCS labels on bind-mounted host paths." }
+                ]
+            },
+            cmp: {
+                basic: [
+                    { q: "Which command starts all services defined in `compose.yaml` in detached mode?", opts: ["docker compose up -d", "docker compose start --all", "docker compose run -d", "docker compose deploy"], ans: 0, tag: "Compose Up", exp: "`docker compose up -d` builds/creates and starts all defined services, networks, and volumes in the background." },
+                    { q: "Which command stops and removes containers and networks created by `docker compose up`?", opts: ["docker compose down", "docker compose stop", "docker compose rm", "docker compose kill"], ans: 0, tag: "Compose Down", exp: "`docker compose down` stops and removes containers and default networks (preserving named volumes unless `-v` is passed)." },
+                    { q: "How do two services (`web` and `redis`) in the same Compose file communicate by default?", opts: ["Over the shared default Compose network using the service name `redis` as hostname", "Only via host IP `127.0.0.1`", "Via shared `/tmp` sockets only", "They cannot communicate without `links`"], ans: 0, tag: "Service DNS", exp: "Compose creates a project bridge network where every service is reachable by its service name." },
+                    { q: "Which top-level key defines container services in a Compose file?", opts: ["services:", "containers:", "deployments:", "pods:"], ans: 0, tag: "Compose Schema", exp: "`services:` is the primary top-level block defining each container specification." },
+                    { q: "Which command views aggregated logs across all Compose services?", opts: ["docker compose logs -f", "docker compose tail", "docker logs --compose", "docker compose ps --logs"], ans: 0, tag: "Compose Logs", exp: "`docker compose logs -f` streams color-coded logs from all services." }
+                ],
+                intermediate: [
+                    { q: "Which flag forces Docker Compose to rebuild service images before starting containers?", opts: ["docker compose up -d --build", "docker compose up -d --compile", "docker compose refresh", "docker compose pull --build"], ans: 0, tag: "Rebuild on Up", exp: "`--build` triggers image builds for services with a `build:` context before starting them." },
+                    { q: "How do you tell Compose to wait until `db` passes its `HEALTHCHECK` before starting `api`?", opts: ["depends_on: { db: { condition: service_healthy } }", "depends_on: [db]", "wait_for: db", "after: db:healthy"], ans: 0, tag: "Healthy Dependencies", exp: "`depends_on` with `condition: service_healthy` delays starting `api` until `db`'s healthcheck reports healthy." },
+                    { q: "Which file does Docker Compose automatically load for variable substitution (`${DB_PASS}`)?", opts: [".env", "vars.ini", "compose.env.json", "secrets.txt"], ans: 0, tag: ".env Substitution", exp: "Compose automatically reads `.env` in the project directory to interpolate `${VAR}` placeholders." },
+                    { q: "Which command scales the `worker` service to 4 container instances?", opts: ["docker compose up -d --scale worker=4", "docker compose scale worker:4", "docker compose replicas worker=4", "docker compose run --count 4 worker"], ans: 0, tag: "Service Scaling", exp: "`docker compose up -d --scale <service>=<count>` runs multiple replicas of stateless services without fixed host ports." },
+                    { q: "What does `docker compose down -v` do in addition to stopping containers?", opts: ["Removes named and anonymous volumes declared in the `volumes:` section", "Verifies YAML syntax", "Prints verbose debug traces", "Deletes downloaded base images"], ans: 0, tag: "Remove Compose Volumes", exp: "`-v` (`--volumes`) deletes project volumes along with containers and networks." }
+                ],
+                advanced: [
+                    { q: "How do you merge a base `compose.yaml` with production overrides in `compose.prod.yaml`?", opts: ["docker compose -f compose.yaml -f compose.prod.yaml up -d", "docker compose --merge compose.prod.yaml up -d", "docker compose import compose.prod.yaml", "docker compose override compose.prod.yaml"], ans: 0, tag: "Multi-File Overrides", exp: "Passing multiple `-f` flags merges YAML configurations left-to-right." },
+                    { q: "What are Compose `profiles:` used for?", opts: ["Selectively enabling optional services (like `debug` or `monitoring`) only when `--profile` is activated", "Limiting container CPU cores", "Encrypting `.env` files", "Selecting OS architectures"], ans: 0, tag: "Compose Profiles", exp: "Services assigned to `profiles:` stay inactive unless activated via `--profile <name>` or `COMPOSE_PROFILES`." },
+                    { q: "How does `env_file:` differ from `.env` variable interpolation in Compose?", opts: ["`env_file:` injects variables directly into the container environment; `.env` substitutes variables inside the YAML file", "`env_file:` only works in Swarm", "`.env` is mounted at `/etc/.env`", "They are identical"], ans: 0, tag: "env_file vs .env", exp: "`env_file` populates container runtime env vars, while `.env` supplies values for `${VAR}` expressions in Compose YAML." },
+                    { q: "Which command validates and renders the final merged Compose configuration with all variables resolved?", opts: ["docker compose config", "docker compose lint", "docker compose validate --print", "docker compose dry-run"], ans: 0, tag: "Render Merged Config", exp: "`docker compose config` validates syntax, merges override files, and prints the resolved configuration." },
+                    { q: "How do Compose `secrets:` mount sensitive credentials inside containers by default?", opts: ["As in-memory files under `/run/secrets/<secret_name>`", "As plain-text labels in `docker inspect`", "Inside `Dockerfile` `ENV` layers", "In `/etc/passwd`"], ans: 0, tag: "Compose Secrets", exp: "Compose mounts secrets into `/run/secrets/<name>` rather than exposing them in image layers or `ENV`." }
+                ]
+            },
+            sec: {
+                basic: [
+                    { q: "Why is running applications as a non-root `USER` inside a container a core security best practice?", opts: ["Limits damage if the application is compromised and prevents root privileges on mounted volumes", "Non-root containers use zero RAM", "Docker Hub rejects root images", "Non-root disables TCP ports"], ans: 0, tag: "Least Privilege User", exp: "Running as a non-root `USER` follows least privilege and reduces container breakout impact." },
+                    { q: "Why should `--privileged` be avoided in production containers?", opts: ["It grants full host device access and disables nearly all container isolation safeguards", "It slows down image pulls", "It disables logging", "It prevents volume mounts"], ans: 0, tag: "Avoid Privileged", exp: "`--privileged` gives a container broad kernel capabilities and host device access." },
+                    { q: "Which flags cap a container's maximum memory to `512m` and CPU to `1.5` cores?", opts: ["--memory=512m --cpus=1.5", "--ram=512m --cores=1.5", "--limit-mem=512 --limit-cpu=1.5", "--quota 512m,1.5"], ans: 0, tag: "Resource Quotas", exp: "`--memory` and `--cpus` enforce cgroup memory and CPU limits to prevent noisy-neighbor exhaustion." },
+                    { q: "Which command reclaims unused stopped containers, dangling images, unused networks, and build cache?", opts: ["docker system prune", "docker gc --force", "docker reset --clean", "docker flush all"], ans: 0, tag: "System Hygiene", exp: "`docker system prune` cleans up unused containers, networks, dangling images, and build cache." },
+                    { q: "Where is the Docker daemon configuration file located on Linux?", opts: ["/etc/docker/daemon.json", "/etc/default/docker.yaml", "~/.docker/daemon.conf", "/var/run/docker.json"], ans: 0, tag: "Daemon Config", exp: "`/etc/docker/daemon.json` configures logging drivers, storage drivers, registry mirrors, and daemon options." }
+                ],
+                intermediate: [
+                    { q: "What does `--read-only` do when running a container (`docker run --read-only ...`)?", opts: ["Mounts the container's root filesystem as read-only so attackers cannot modify binaries or drop scripts", "Blocks all HTTP POST requests", "Makes volumes read-only too", "Disables stdout logs"], ans: 0, tag: "Read-Only Rootfs", exp: "`--read-only` locks down the container rootfs; combine with `--tmpfs /tmp` or volumes for writable scratch paths." },
+                    { q: "How do you drop all Linux capabilities and add back only `NET_BIND_SERVICE`?", opts: ["--cap-drop=ALL --cap-add=NET_BIND_SERVICE", "--caps=NET_BIND_SERVICE", "--no-caps --allow=NET_BIND_SERVICE", "--security-opt cap=NET_BIND_SERVICE"], ans: 0, tag: "Linux Capabilities", exp: "`--cap-drop=ALL` strips default capabilities, allowing granular `--cap-add` grants." },
+                    { q: "Why is mounting `/var/run/docker.sock` into an untrusted container dangerous?", opts: ["Access to the Docker socket grants full root-equivalent control over the host via the Docker API", "It fills up `/var/log`", "It breaks container DNS", "It disables TLS"], ans: 0, tag: "Docker Socket Risk", exp: "Anyone who can talk to `docker.sock` can launch privileged containers mounting `/` from the host." },
+                    { q: "Which logging driver option prevents container JSON logs from filling up the host disk?", opts: ["`--log-opt max-size=10m --log-opt max-file=3`", "`--log-rotate=true`", "`--max-logs=10MB`", "`--log-driver=null`"], ans: 0, tag: "Log Rotation", exp: "Configuring `max-size` and `max-file` on `json-file` or `local` log drivers caps disk usage." },
+                    { q: "What does `--security-opt=no-new-privileges:true` prevent inside a container?", opts: ["Processes from gaining additional privileges via `setuid`/`setgid` binaries", "Creating new child processes", "Opening outbound sockets", "Reading `/etc/hosts`"], ans: 0, tag: "No New Privileges", exp: "`no-new-privileges` blocks privilege escalation via SUID/SGID executables." }
+                ],
+                advanced: [
+                    { q: "How does Rootless Docker improve host security?", opts: ["Runs both the Docker daemon and containers inside a user namespace without root privileges on the host", "Encrypts all container memory pages", "Removes the Linux kernel", "Uses hardware VMs per container"], ans: 0, tag: "Rootless Docker", exp: "Rootless mode runs `dockerd` and containers under an unprivileged host user via user namespaces (`uid_map`)." },
+                    { q: "What role does `seccomp` play in Docker container isolation?", opts: ["Filters and blocks dangerous Linux system calls (`syscalls`) from reaching the host kernel", "Encrypts overlay network traffic", "Signs registry images with GPG", "Scans Dockerfiles for secrets"], ans: 0, tag: "Seccomp Profiles", exp: "Docker's default `seccomp` profile blocks dozens of high-risk syscalls while allowing normal workloads." },
+                    { q: "How does Docker Content Trust (`DOCKER_CONTENT_TRUST=1`) protect image pulls?", opts: ["Verifies cryptographic signatures on image tags before pulling or running them", "Compresses layers with zstd", "Forces rootless mode", "Blocks HTTP registries"], ans: 0, tag: "Image Signing & Trust", exp: "`DOCKER_CONTENT_TRUST=1` enforces cryptographic signature verification for image manifests." },
+                    { q: "Why are 'distroless' runtime images advantageous in production?", opts: ["They omit shells (`sh`/`bash`), package managers, and OS utilities, minimizing CVEs and post-exploit tools", "They run without a host Linux kernel", "They auto-patch running binaries", "They include built-in Kubernetes"], ans: 0, tag: "Distroless Images", exp: "Distroless images contain only your app and runtime dependencies, removing shells and unnecessary packages." },
+                    { q: "What happens when `userns-remap` is enabled in `/etc/docker/daemon.json`?", opts: ["Container `root` (UID 0) is mapped to an unprivileged high-numbered UID on the host", "All containers share UID 1000", "Rootless mode is disabled", "Swap accounting is turned off"], ans: 0, tag: "User Namespace Remap", exp: "`userns-remap` maps container UID 0 to an unprivileged host UID range, mitigating container breakouts." }
+                ]
+            }
+        };
+
+        const EXTRA_TEMPLATES = {
+            img: [
+                { title: "Inspecting Image Metadata", cmd: "docker image inspect alpine:latest", area: "Image Inspect", exp: "`docker image inspect` outputs full JSON metadata, entrypoint, env, and layer digests." },
+                { title: "Logging Into Private Registry", cmd: "docker login registry.example.com", area: "Registry Auth", exp: "`docker login <registry>` authenticates and stores credentials for pulling/pushing private images." },
+                { title: "Pushing Tagged Image", cmd: "docker push myorg/service:1.2.0", area: "Registry Push", exp: "`docker push <repo>:<tag>` uploads new image layers to the target registry." },
+                { title: "Filtering Dangling Images", cmd: "docker images -f dangling=true", area: "Dangling Filter", exp: "`-f dangling=true` lists untagged images ready for cleanup." },
+                { title: "Searching Docker Hub CLI", cmd: "docker search postgres", area: "Hub Search", exp: "`docker search <term>` queries public repositories on Docker Hub." }
+            ],
+            cnt: [
+                { title: "Viewing Container Processes", cmd: "docker top web", area: "Process View", exp: "`docker top <container>` displays running processes inside the container." },
+                { title: "Viewing Port Mappings", cmd: "docker port web", area: "Port Inspect", exp: "`docker port <container>` lists host-to-container port bindings." },
+                { title: "Pausing Container via Cgroups", cmd: "docker pause web", area: "Cgroup Freezer", exp: "`docker pause` suspends all processes in a container using the cgroup freezer." },
+                { title: "Checking Filesystem Changes", cmd: "docker diff web", area: "Container Diff", exp: "`docker diff <container>` lists added (`A`), changed (`C`), and deleted (`D`) files in the writable layer." },
+                { title: "Waiting for Container Exit", cmd: "docker wait job-runner", area: "Exit Synchronization", exp: "`docker wait <container>` blocks until the container stops and prints its exit code." }
+            ],
+            dfb: [
+                { title: "Building with Custom Dockerfile", cmd: "docker build -f Dockerfile.prod -t app:prod .", area: "Custom Dockerfile", exp: "`-f` specifies a non-default Dockerfile path during `docker build`." },
+                { title: "Targeting Multi-Stage Build Step", cmd: "docker build --target test -t app:test .", area: "Stage Target", exp: "`--target <stage>` stops building at a specific named `AS <stage>` stage." },
+                { title: "Building Without Cache", cmd: "docker build --no-cache -t app:clean .", area: "Cache Bypass", exp: "`--no-cache` forces Docker to re-execute every Dockerfile instruction from scratch." },
+                { title: "Adding OCI Image Labels", cmd: "LABEL org.opencontainers.image.source='https://github.com/org/repo'", area: "OCI Labels", exp: "`LABEL` embeds key-value metadata into the image manifest." },
+                { title: "Passing Build-Time Argument", cmd: "docker build --build-arg NODE_ENV=production -t app:1.0 .", area: "Build Args", exp: "`--build-arg KEY=VAL` supplies values for `ARG` instructions during build." }
+            ],
+            net: [
+                { title: "Disconnecting Container Network", cmd: "docker network disconnect app-net worker", area: "Detach Network", exp: "`docker network disconnect` detaches a container from a Docker network." },
+                { title: "Assigning Network Alias", cmd: "docker run -d --network app-net --network-alias db postgres", area: "DNS Alias", exp: "`--network-alias` registers an extra DNS name for the container on user-defined networks." },
+                { title: "Pruning Unused Networks", cmd: "docker network prune", area: "Network Cleanup", exp: "`docker network prune` removes custom networks with zero connected containers." },
+                { title: "Binding Port to Localhost Only", cmd: "docker run -d -p 127.0.0.1:6379:6379 redis", area: "Loopback Binding", exp: "Prefixing `127.0.0.1:` restricts port exposure strictly to the host loopback interface." },
+                { title: "Setting Custom Container DNS", cmd: "docker run --dns 1.1.1.1 alpine nslookup example.com", area: "Custom DNS", exp: "`--dns` configures upstream nameservers inside `/etc/resolv.conf`." }
+            ],
+            vol: [
+                { title: "Inspecting Volume Mountpoint", cmd: "docker volume inspect pgdata", area: "Volume Inspect", exp: "`docker volume inspect` shows the host `_data` path, driver, and labels." },
+                { title: "Creating Volume with Labels", cmd: "docker volume create --label env=prod app_vol", area: "Volume Labels", exp: "`--label` attaches metadata for filtering and lifecycle automation." },
+                { title: "Using --mount Syntax", cmd: "docker run -d --mount source=pgdata,target=/var/lib/postgresql/data postgres", area: "Explicit Mount", exp: "`--mount` offers explicit key-value syntax for volumes, bind mounts, and tmpfs." },
+                { title: "Sharing Volume Across Containers", cmd: "docker run --rm -v shared_logs:/logs alpine tail -n 20 /logs/app.log", area: "Shared Volume", exp: "Multiple containers can mount the same named volume simultaneously." },
+                { title: "Pruning All Unused Volumes", cmd: "docker volume prune -f", area: "Force Prune", exp: "`docker volume prune -f` removes unused volumes without an interactive prompt." }
+            ],
+            cmp: [
+                { title: "Listing Compose Services", cmd: "docker compose ps", area: "Service Status", exp: "`docker compose ps` shows running state, health, and ports for project services." },
+                { title: "Executing Command in Service", cmd: "docker compose exec api sh", area: "Compose Exec", exp: "`docker compose exec <service> <cmd>` runs a command inside a running service container." },
+                { title: "Pulling Service Images", cmd: "docker compose pull", area: "Compose Pull", exp: "`docker compose pull` downloads updated images for services defined in Compose." },
+                { title: "Restarting Single Service", cmd: "docker compose restart nginx", area: "Service Restart", exp: "`docker compose restart <service>` restarts a specific service without touching others." },
+                { title: "Running One-Off Task Container", cmd: "docker compose run --rm api npm test", area: "One-Off Task", exp: "`docker compose run --rm` starts an ephemeral container for migrations or tests." }
+            ],
+            sec: [
+                { title: "Running Container as UID 1000", cmd: "docker run --user 1000:1000 nginx", area: "Non-Root Runtime", exp: "`--user UID:GID` overrides the image default user at runtime." },
+                { title: "Limiting PIDs Fork Bomb", cmd: "docker run --pids-limit=100 alpine", area: "PID Limits", exp: "`--pids-limit` restricts maximum tasks/processes inside the container cgroup." },
+                { title: "Viewing Daemon Info & Drivers", cmd: "docker info", area: "Daemon Diagnostics", exp: "`docker info` reports storage driver, cgroup version, security options, and host resources." },
+                { title: "Streaming Real-Time Engine Events", cmd: "docker events --filter type=container", area: "Audit Events", exp: "`docker events` streams real-time lifecycle and health events from the Docker daemon." },
+                { title: "Pruning Dangling Build Cache", cmd: "docker builder prune", area: "Builder Hygiene", exp: "`docker builder prune` cleans unused BuildKit cache layers to reclaim disk space." }
+            ]
+        };
+
+        function buildQuestionBank() {
+            const bank = {};
+            TOPICS.forEach((topic) => {
+                bank[topic.id] = {};
+                LEVELS.forEach((level) => {
+                    const list = [...(SEED_QUESTIONS[topic.id]?.[level] || [])];
+                    const extras = EXTRA_TEMPLATES[topic.id] || [];
+                    const levelLabel = level.charAt(0).toUpperCase() + level.slice(1);
+                    let idx = 0;
+
+                    while (list.length < 20) {
+                        const tpl = extras[idx % extras.length];
+                        const variant = Math.floor(idx / extras.length) + 1;
+                        const askCmd = variant % 2 === 1;
+
+                        list.push(
+                            askCmd
+                                ? {
+                                    q: `[${levelLabel} #${list.length + 1}] Which Docker command or directive performs "${tpl.title}" (${tpl.area})?`,
+                                    opts: [
+                                        tpl.cmd,
+                                        `${tpl.cmd.split(' ')[0]} --invalid-container-flag`,
+                                        `docker swarm purge-all --force ${tpl.area.toLowerCase().replace(/\s+/g, '-')}`,
+                                        `docker system reset --wipe-${topic.id}`
+                                    ],
+                                    ans: 0,
+                                    tag: `${tpl.area} • ${levelLabel}`,
+                                    exp: `${tpl.exp} (${levelLabel} container practice)`
+                                }
+                                : {
+                                    q: `[${levelLabel} #${list.length + 1}] In ${topic.name}, what does \`${tpl.cmd}\` accomplish?`,
+                                    opts: [
+                                        tpl.exp,
+                                        "Deletes all Docker volumes and reboots the host kernel immediately",
+                                        "Disables container network isolation and exposes root `/`",
+                                        "Converts all containers into virtual machines"
+                                    ],
+                                    ans: 0,
+                                    tag: `${tpl.area} • ${levelLabel}`,
+                                    exp: tpl.exp
+                                }
+                        );
+                        idx++;
+                    }
+
+                    bank[topic.id][level] = list.slice(0, 20).map((item, i) => ({
+                        id: `${topic.code}-${level.slice(0, 3).toUpperCase()}-${String(i + 1).padStart(2, '0')}`,
+                        ...item
+                    }));
+                });
+            });
+            return bank;
+        }
+
+        const QUESTION_BANK = buildQuestionBank();
+
+        // --- PERSISTENT CHECKPOINT STATE (localStorage) ---
+        const STORAGE_KEY = 'docker_ops_arena_state_v1';
+
+        const defaultState = {
+            theme: 'dark',
+            tab: 'arena',
+            topicId: 'img',
+            level: 'basic',
+            qIndex: 0,
+            runAskedIds: [],
+            runAnsweredIds: [],
+            score: 0,
+            streak: 0,
+            bestStreak: 0,
+            highScore: 0,
+            health: 100,
+            timeLeft: 24,
+            answeredCurrent: false,
+            selectedOption: null,
+            tierCompletedBanner: false,
+            totalAttempts: 0,
+            totalCorrect: 0,
+            masteredIds: [],
+            completedTiers: {}, // e.g., { "img:basic": true, "img:intermediate": true }
+            soundEnabled: true,
+            lastSavedAt: null
+        };
+
+        let hadSavedCheckpointOnBoot = false;
+        let appState = loadState();
+        let timerInterval = null;
+        let audioCtx = null;
+
+        function loadState() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (!raw) return { ...defaultState };
+                const parsed = JSON.parse(raw);
+                const merged = { ...defaultState, ...parsed };
+
+                // Validate topic & sequential tier unlock integrity
+                if (!TOPICS.some((t) => t.id === merged.topicId)) merged.topicId = 'img';
+                if (!LEVELS.includes(merged.level)) merged.level = 'basic';
+                if (!isTierUnlocked(merged.topicId, merged.level, merged.completedTiers)) {
+                    merged.level = getHighestUnlockedTier(merged.topicId, merged.completedTiers);
+                    merged.qIndex = 0;
+                    merged.answeredCurrent = false;
+                }
+                if (typeof merged.qIndex !== 'number' || merged.qIndex < 0 || merged.qIndex >= 20) {
+                    merged.qIndex = 0;
+                }
+                if (merged.qIndex > 0 || (merged.runAnsweredIds && merged.runAnsweredIds.length > 0)) {
+                    hadSavedCheckpointOnBoot = true;
+                }
+                return merged;
+            } catch {
+                return { ...defaultState };
+            }
+        }
+
+        function saveState() {
+            try {
+                appState.lastSavedAt = new Date().toISOString();
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+                updateAutoSaveIndicator();
+            } catch {
+                // Ignore storage quota errors
+            }
+        }
+
+        function updateAutoSaveIndicator() {
+            const textEl = document.getElementById('autosave-text');
+            if (!textEl) return;
+            const topic = getCurrentTopicObj();
+            const qNum = Math.min(20, appState.qIndex + 1);
+            const timeStr = appState.lastSavedAt
+                ? new Date(appState.lastSavedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                : 'Now';
+            textEl.textContent = `Saved: ${topic.code} ${appState.level.toUpperCase()} Q${qNum}/20 (${timeStr})`;
+        }
+
+        // --- SEQUENTIAL LEVEL UNLOCK LOGIC (Basic -> Intermediate -> Advanced per topic) ---
+        function tierKey(topicId, level) {
+            return `${topicId}:${level}`;
+        }
+
+        function isTierCompleted(topicId, level, completedMap = appState.completedTiers) {
+            return Boolean(completedMap && completedMap[tierKey(topicId, level)]);
+        }
+
+        function isTierUnlocked(topicId, level, completedMap = appState.completedTiers) {
+            if (level === 'basic') return true;
+            if (level === 'intermediate') return isTierCompleted(topicId, 'basic', completedMap);
+            if (level === 'advanced') return isTierCompleted(topicId, 'intermediate', completedMap);
+            return false;
+        }
+
+        function getHighestUnlockedTier(topicId, completedMap = appState.completedTiers) {
+            if (isTierUnlocked(topicId, 'advanced', completedMap)) return 'advanced';
+            if (isTierUnlocked(topicId, 'intermediate', completedMap)) return 'intermediate';
+            return 'basic';
+        }
+
+        function countCompletedTiers() {
+            let count = 0;
+            TOPICS.forEach((t) => {
+                LEVELS.forEach((lvl) => {
+                    if (isTierCompleted(t.id, lvl)) count++;
+                });
+            });
+            return count;
+        }
+
+        // --- THEME & SYNTHESIZED WEB AUDIO SOUND FX ---
+        function applyTheme() {
+            const htmlEl = document.documentElement;
+            const icon = document.getElementById('theme-icon');
+            const label = document.getElementById('theme-label');
+
+            if (appState.theme === 'dark') {
+                htmlEl.classList.add('dark');
+                icon.textContent = '☀️';
+                label.textContent = 'Light Theme';
+            } else {
+                htmlEl.classList.remove('dark');
+                icon.textContent = '🌙';
+                label.textContent = 'Dark Theme';
+            }
+        }
+
+        function toggleTheme() {
+            appState.theme = appState.theme === 'dark' ? 'light' : 'dark';
+            saveState();
+            applyTheme();
+            playTone(520, 0.06, 'sine', 0.06);
+        }
+
+        function playTone(freq, duration = 0.12, type = 'sine', gainVal = 0.11) {
+            if (!appState.soundEnabled) return;
+            try {
+                if (!audioCtx) {
+                    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                    audioCtx = new AudioContextClass();
+                }
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                gain.gain.setValueAtTime(gainVal, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch {
+                // Ignore audio errors
+            }
+        }
+
+        function playCorrectSfx() {
+            playTone(587.33, 0.1, 'triangle', 0.13);
+            setTimeout(() => playTone(880, 0.16, 'sine', 0.13), 85);
+        }
+
+        function playWrongSfx() {
+            playTone(210, 0.15, 'sawtooth', 0.12);
+            setTimeout(() => playTone(145, 0.22, 'sawtooth', 0.12), 115);
+        }
+
+        function playUnlockSfx() {
+            playTone(523.25, 0.1, 'triangle', 0.12);
+            setTimeout(() => playTone(659.25, 0.1, 'triangle', 0.12), 90);
+            setTimeout(() => playTone(783.99, 0.18, 'triangle', 0.13), 180);
+        }
+
+        function toggleSound() {
+            appState.soundEnabled = !appState.soundEnabled;
+            saveState();
+            document.getElementById('sound-icon').textContent = appState.soundEnabled ? '🔊' : '🔇';
+            if (appState.soundEnabled) playTone(660, 0.09, 'sine', 0.08);
+        }
+
+        // --- CUSTOM MODAL (NO NATIVE ALERT / CONFIRM) ---
+        function showModal({ icon = '🐳', title, message, confirmText = 'OK', cancelText = null, onConfirm = null }) {
+            const modal = document.getElementById('custom-modal');
+            document.getElementById('modal-icon').textContent = icon;
+            document.getElementById('modal-title').textContent = title;
+            document.getElementById('modal-message').textContent = message;
+
+            const actions = document.getElementById('modal-actions');
+            actions.innerHTML = '';
+
+            if (cancelText) {
+                const cancelBtn = document.createElement('button');
+                cancelBtn.className = 'dk-card px-4 py-2 rounded-xl text-xs sm:text-sm font-mono font-semibold cursor-pointer';
+                cancelBtn.textContent = cancelText;
+                cancelBtn.onclick = () => {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                };
+                actions.appendChild(cancelBtn);
+            }
+
+            const okBtn = document.createElement('button');
+            okBtn.className = 'px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs sm:text-sm font-mono font-bold cursor-pointer';
+            okBtn.textContent = confirmText;
+            okBtn.onclick = () => {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                if (typeof onConfirm === 'function') onConfirm();
+            };
+            actions.appendChild(okBtn);
+
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        }
+
+        function confirmRestartCurrentTier() {
+            const topic = getCurrentTopicObj();
+            showModal({
+                icon: '↻',
+                title: `Restart ${topic.name} (${appState.level.toUpperCase()})?`,
+                message: 'This will reset your current run position back to Question 1/20 for this domain and tier.',
+                confirmText: 'Restart Tier',
+                cancelText: 'Cancel',
+                onConfirm: () => restartCurrentTierNow()
+            });
+        }
+
+        function restartCurrentTierNow() {
+            appState.qIndex = 0;
+            appState.runAskedIds = [];
+            appState.runAnsweredIds = [];
+            appState.answeredCurrent = false;
+            appState.selectedOption = null;
+            appState.tierCompletedBanner = false;
+            appState.health = 100;
+            appState.streak = 0;
+            hadSavedCheckpointOnBoot = false;
+            saveState();
+            renderAll();
+            if (appState.tab === 'arena') startQuestionTimer();
+        }
+
+        function confirmResetProgress() {
+            showModal({
+                icon: '⚠️',
+                title: 'Reset All Saved Progress?',
+                message: 'This clears your saved checkpoint, high score, accuracy stats, mastered questions, and unlocked Intermediate/Advanced tiers.',
+                confirmText: 'Reset Everything',
+                cancelText: 'Cancel',
+                onConfirm: () => {
+                    localStorage.removeItem(STORAGE_KEY);
+                    const currentTheme = appState.theme;
+                    appState = { ...defaultState, theme: currentTheme };
+                    hadSavedCheckpointOnBoot = false;
+                    saveState();
+                    renderAll();
+                    if (appState.tab === 'arena') startQuestionTimer();
+                }
+            });
+        }
+
+        // --- TAB, DOMAIN & SEQUENTIAL LEVEL NAVIGATION ---
+        function switchTab(tabName) {
+            appState.tab = tabName;
+            saveState();
+
+            const arenaBtn = document.getElementById('tab-arena');
+            const bankBtn = document.getElementById('tab-bank');
+            const arenaView = document.getElementById('view-arena');
+            const bankView = document.getElementById('view-bank');
+
+            const isArena = tabName === 'arena';
+            arenaView.classList.toggle('hidden', !isArena);
+            bankView.classList.toggle('hidden', isArena);
+
+            arenaBtn.className = isArena
+                ? 'px-4 py-2 rounded-lg text-xs sm:text-sm font-bold flex items-center gap-2 transition cursor-pointer bg-sky-600 text-white shadow-xs'
+                : 'px-4 py-2 rounded-lg text-xs sm:text-sm font-bold flex items-center gap-2 transition cursor-pointer dk-subtle dk-muted border dk-border hover:border-sky-500';
+
+            bankBtn.className = !isArena
+                ? 'px-4 py-2 rounded-lg text-xs sm:text-sm font-bold flex items-center gap-2 transition cursor-pointer bg-sky-600 text-white shadow-xs'
+                : 'px-4 py-2 rounded-lg text-xs sm:text-sm font-bold flex items-center gap-2 transition cursor-pointer dk-subtle dk-muted border dk-border hover:border-sky-500';
+
+            clearInterval(timerInterval);
+            if (isArena) {
+                startQuestionTimer();
+            } else {
+                renderQuestionBank();
+            }
+        }
+
+        function selectTopic(topicId) {
+            if (appState.topicId === topicId) return;
+            appState.topicId = topicId;
+
+            // Enforce sequential unlock for the newly selected domain
+            if (!isTierUnlocked(topicId, appState.level)) {
+                appState.level = getHighestUnlockedTier(topicId);
+            }
+
+            appState.qIndex = 0;
+            appState.runAskedIds = [];
+            appState.runAnsweredIds = [];
+            appState.answeredCurrent = false;
+            appState.selectedOption = null;
+            appState.tierCompletedBanner = false;
+            appState.health = 100;
+            hadSavedCheckpointOnBoot = false;
+
+            saveState();
+            renderAll();
+            if (appState.tab === 'arena') startQuestionTimer();
+        }
+
+        function selectLevel(level) {
+            if (!isTierUnlocked(appState.topicId, level)) {
+                const topic = getCurrentTopicObj();
+                const prereq = level === 'intermediate' ? 'Basic' : 'Intermediate';
+                playWrongSfx();
+                showModal({
+                    icon: '🔒',
+                    title: `${level.toUpperCase()} Tier Locked`,
+                    message: `Complete all 20 questions in ${topic.name} (${prereq}) first to unlock ${level.toUpperCase()} for this domain.`
+                });
+                return;
+            }
+
+            if (appState.level === level) return;
+            appState.level = level;
+            appState.qIndex = 0;
+            appState.runAskedIds = [];
+            appState.runAnsweredIds = [];
+            appState.answeredCurrent = false;
+            appState.selectedOption = null;
+            appState.tierCompletedBanner = false;
+            appState.health = 100;
+            hadSavedCheckpointOnBoot = false;
+
+            saveState();
+            renderAll();
+            if (appState.tab === 'arena') startQuestionTimer();
+        }
+
+        function getCurrentQuestions() {
+            return QUESTION_BANK[appState.topicId][appState.level];
+        }
+
+        function getCurrentTopicObj() {
+            return TOPICS.find((t) => t.id === appState.topicId) || TOPICS[0];
+        }
+
+        // --- ARENA QUIZ ENGINE ---
+        function getLevelSeconds() {
+            if (appState.level === 'basic') return 24;
+            if (appState.level === 'intermediate') return 18;
+            return 14;
+        }
+
+        function startQuestionTimer() {
+            clearInterval(timerInterval);
+            if (appState.tab !== 'arena' || appState.answeredCurrent || appState.tierCompletedBanner) return;
+
+            const currentQ = getCurrentQuestions()[appState.qIndex];
+            if (currentQ && !appState.runAskedIds.includes(currentQ.id)) {
+                appState.runAskedIds.push(currentQ.id);
+                saveState();
+            }
+
+            appState.timeLeft = getLevelSeconds();
+            document.getElementById('arena-timer').textContent = `${appState.timeLeft}s`;
+
+            timerInterval = setInterval(() => {
+                if (appState.answeredCurrent || appState.tab !== 'arena' || appState.tierCompletedBanner) {
+                    clearInterval(timerInterval);
+                    return;
+                }
+                appState.timeLeft -= 1;
+                const timerEl = document.getElementById('arena-timer');
+                timerEl.textContent = `${Math.max(0, appState.timeLeft)}s`;
+
+                if (appState.timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    handleAnswer(-1, true);
+                }
+            }, 1000);
+        }
+
+        function handleAnswer(optionIndex, timedOut = false) {
+            if (appState.answeredCurrent || appState.tierCompletedBanner) return;
+            clearInterval(timerInterval);
+
+            const q = getCurrentQuestions()[appState.qIndex];
+            const isCorrect = !timedOut && optionIndex === q.ans;
+
+            appState.answeredCurrent = true;
+            appState.selectedOption = optionIndex;
+            appState.totalAttempts += 1;
+
+            if (!appState.runAskedIds.includes(q.id)) {
+                appState.runAskedIds.push(q.id);
+            }
+            if (!appState.runAnsweredIds.includes(q.id)) {
+                appState.runAnsweredIds.push(q.id);
+            }
+
+            const card = document.getElementById('question-card');
+            const expBox = document.getElementById('explanation-box');
+            const fbTitle = document.getElementById('feedback-title');
+            const expText = document.getElementById('explanation-text');
+            const runner = document.getElementById('runner-avatar');
+            const runnerStatus = document.getElementById('runner-status');
+
+            if (isCorrect) {
+                appState.totalCorrect += 1;
+                appState.streak += 1;
+                if (appState.streak > appState.bestStreak) appState.bestStreak = appState.streak;
+
+                const mult = Math.min(5, 1 + Math.floor(appState.streak / 3));
+                const gained = (100 + Math.max(10, appState.timeLeft * 5)) * mult;
+                appState.score += gained;
+                if (appState.score > appState.highScore) appState.highScore = appState.score;
+                appState.health = Math.min(100, appState.health + 8);
+
+                if (!appState.masteredIds.includes(q.id)) {
+                    appState.masteredIds.push(q.id);
+                }
+
+                playCorrectSfx();
+                expBox.className = 'rounded-xl p-4 border animate-pop-in space-y-2.5 bg-emerald-500/12 border-emerald-500/40';
+                fbTitle.className = 'font-mono font-extrabold text-xs sm:text-sm text-emerald-600 dark:text-emerald-400';
+                fbTitle.textContent = `✅ CONTAINER HEALTHY (+${gained} PTS • ${mult}x STREAK)`;
+                runner.style.transform = 'translateX(22px)';
+                runnerStatus.textContent = 'Deployment succeeded!';
+            } else {
+                appState.streak = 0;
+                appState.health = Math.max(0, appState.health - 22);
+                playWrongSfx();
+
+                card.classList.remove('animate-shake');
+                void card.offsetWidth;
+                card.classList.add('animate-shake');
+
+                expBox.className = 'rounded-xl p-4 border animate-pop-in space-y-2.5 bg-rose-500/12 border-rose-500/40';
+                fbTitle.className = 'font-mono font-extrabold text-xs sm:text-sm text-rose-600 dark:text-rose-400';
+                fbTitle.textContent = timedOut
+                    ? '⏱️ HEALTHCHECK TIMED OUT (-22% Engine Integrity)'
+                    : '❌ CONTAINER CRASHLOOP (-22% Engine Integrity)';
+                runner.style.transform = 'translateX(-6px)';
+                runnerStatus.textContent = 'Exit code non-zero!';
+            }
+
+            expText.textContent = `Verified Answer: [${String.fromCharCode(65 + q.ans)}] ${q.opts[q.ans]} — ${q.exp}`;
+            expBox.classList.remove('hidden');
+
+            // Update button label if this was Question 20/20
+            const nextBtn = document.getElementById('btn-next-q');
+            nextBtn.textContent = appState.qIndex + 1 >= 20 ? 'Complete Tier & Unlock Next →' : 'Next Container →';
+
+            saveState();
+            renderStats();
+            renderArenaHeader();
+            renderQuestionOptions(q);
+            renderTopicPills();
+
+            if (appState.health <= 0) {
+                setTimeout(() => {
+                    showModal({
+                        icon: '💥',
+                        title: 'Engine Integrity Depleted (0%)',
+                        message: `Current Score: ${appState.score}. Restarting container daemon health back to 100% so you can continue.`,
+                        confirmText: 'Restart Daemon',
+                        onConfirm: () => {
+                            appState.health = 100;
+                            appState.streak = 0;
+                            saveState();
+                            nextQuestion();
+                        }
+                    });
+                }, 380);
+            }
+        }
+
+        function nextQuestion() {
+            const questions = getCurrentQuestions();
+            appState.answeredCurrent = false;
+            appState.selectedOption = null;
+            hadSavedCheckpointOnBoot = false;
+
+            if (appState.qIndex + 1 < questions.length) {
+                appState.qIndex += 1;
+                document.getElementById('runner-avatar').style.transform = 'translateX(0px)';
+                document.getElementById('runner-status').textContent = 'Container healthy & running...';
+                saveState();
+                renderArenaHeader();
+                renderArenaQuestion();
+                startQuestionTimer();
+            } else {
+                // Completed all 20 questions in the current tier -> mark tier completed & unlock next tier
+                appState.completedTiers[tierKey(appState.topicId, appState.level)] = true;
+                appState.tierCompletedBanner = true;
+                playUnlockSfx();
+                saveState();
+                renderAll();
+            }
+        }
+
+        function proceedToNextUnlockedTier() {
+            const nextLvl = appState.level === 'basic'
+                ? 'intermediate'
+                : appState.level === 'intermediate'
+                    ? 'advanced'
+                    : null;
+
+            if (nextLvl) {
+                appState.level = nextLvl;
+                appState.qIndex = 0;
+                appState.runAskedIds = [];
+                appState.runAnsweredIds = [];
+                appState.answeredCurrent = false;
+                appState.selectedOption = null;
+                appState.tierCompletedBanner = false;
+                appState.health = 100;
+                saveState();
+                renderAll();
+                startQuestionTimer();
+            } else {
+                // Advanced completed: pick next incomplete topic or replay
+                const nextTopic = TOPICS.find((t) => !isTierCompleted(t.id, 'advanced'));
+                if (nextTopic) {
+                    selectTopic(nextTopic.id);
+                } else {
+                    restartCurrentTierNow();
+                }
+            }
+        }
+
+        // --- UI RENDERERS ---
+        function renderTopicPills() {
+            // Render level lock indicators for active topic
+            LEVELS.forEach((lvl) => {
+                const unlocked = isTierUnlocked(appState.topicId, lvl);
+                const completed = isTierCompleted(appState.topicId, lvl);
+                const lockSpan = document.getElementById(`lvl-lock-${lvl}`);
+                if (lockSpan) {
+                    if (!unlocked) lockSpan.textContent = '🔒';
+                    else if (completed) lockSpan.textContent = '✅';
+                    else lockSpan.textContent = lvl === 'basic' ? '🟢' : lvl === 'intermediate' ? '🟡' : '🔴';
+                }
+            });
+
+            document.querySelectorAll('.level-btn').forEach((btn) => {
+                const lvl = btn.getAttribute('data-level');
+                const isActive = lvl === appState.level;
+                const unlocked = isTierUnlocked(appState.topicId, lvl);
+
+                if (isActive) {
+                    btn.className = 'level-btn px-3.5 py-1.5 rounded-lg text-xs font-mono font-bold bg-sky-600 text-white cursor-pointer flex items-center gap-1.5 shadow-xs';
+                } else if (!unlocked) {
+                    btn.className = 'level-btn px-3.5 py-1.5 rounded-lg text-xs font-mono font-bold dk-muted opacity-60 cursor-pointer flex items-center gap-1.5';
+                } else {
+                    btn.className = 'level-btn px-3.5 py-1.5 rounded-lg text-xs font-mono font-bold dk-muted hover:text-sky-600 dark:hover:text-sky-400 cursor-pointer flex items-center gap-1.5';
+                }
+            });
+
+            const container = document.getElementById('topic-pills');
+            container.innerHTML = '';
+
+            TOPICS.forEach((t) => {
+                const isActive = t.id === appState.topicId;
+                const masteredInTier = QUESTION_BANK[t.id][appState.level].filter((q) =>
+                    appState.masteredIds.includes(q.id)
+                ).length;
+                const tiersDone = LEVELS.filter((l) => isTierCompleted(t.id, l)).length;
+
+                const btn = document.createElement('button');
+                btn.onclick = () => selectTopic(t.id);
+                btn.className = isActive
+                    ? 'text-left p-3 rounded-xl border-2 border-sky-500 bg-sky-500/12 cursor-pointer transition'
+                    : 'text-left p-3 rounded-xl dk-card hover:border-sky-500/60 cursor-pointer transition';
+
+                btn.innerHTML = `
+                    <div class="flex items-center justify-between text-xs font-mono">
+                        <span class="text-base">${t.icon}</span>
+                        <span class="px-1.5 py-0.5 rounded bg-sky-500/10 text-sky-600 dark:text-sky-400 font-bold text-[10px]">${t.code}</span>
+                    </div>
+                    <div class="text-xs font-bold mt-1.5 truncate">${escapeHtml(t.short)}</div>
+                    <div class="flex items-center justify-between text-[11px] font-mono dk-muted mt-1">
+                        <span>${masteredInTier}/20 Qs</span>
+                        <span>${tiersDone}/3 Tiers</span>
+                    </div>
+                `;
+                container.appendChild(btn);
+            });
+        }
+
+        function renderArenaHeader() {
+            const topic = getCurrentTopicObj();
+            const questions = getCurrentQuestions();
+
+            document.getElementById('arena-badge').textContent = `${appState.level.toUpperCase()} • ${topic.name.toUpperCase()}`;
+            document.getElementById('arena-q-counter').textContent = `Question ${appState.qIndex + 1} / ${questions.length}`;
+            document.getElementById('arena-score').textContent = appState.score.toLocaleString();
+            document.getElementById('arena-streak').textContent = `${appState.streak}x`;
+            document.getElementById('arena-health-text').textContent = `${appState.health}%`;
+            document.getElementById('arena-health-bar').style.width = `${appState.health}%`;
+
+            const resumePill = document.getElementById('checkpoint-resume-pill');
+            resumePill.classList.toggle('hidden', !hadSavedCheckpointOnBoot);
+
+            const completedCount = appState.tierCompletedBanner
+                ? questions.length
+                : appState.qIndex + (appState.answeredCurrent ? 1 : 0);
+            const pct = Math.round((completedCount / questions.length) * 100);
+            document.getElementById('rollout-pct').textContent = `${pct}%`;
+        }
+
+        function renderQuestionOptions(q) {
+            const grid = document.getElementById('options-grid');
+            grid.innerHTML = '';
+
+            q.opts.forEach((opt, idx) => {
+                const letter = String.fromCharCode(65 + idx);
+                const btn = document.createElement('button');
+                btn.disabled = appState.answeredCurrent;
+
+                let cls = 'dk-card hover:border-sky-500 cursor-pointer';
+                let badgeCls = 'dk-subtle border dk-border text-sky-600 dark:text-sky-400';
+
+                if (appState.answeredCurrent) {
+                    if (idx === q.ans) {
+                        cls = 'bg-emerald-500/15 border-emerald-500 text-emerald-700 dark:text-emerald-300 font-semibold';
+                        badgeCls = 'bg-emerald-600 text-white border-emerald-600';
+                    } else if (idx === appState.selectedOption && idx !== q.ans) {
+                        cls = 'bg-rose-500/15 border-rose-500 text-rose-700 dark:text-rose-300';
+                        badgeCls = 'bg-rose-600 text-white border-rose-600';
+                    } else {
+                        cls = 'dk-card opacity-55';
+                    }
+                }
+
+                btn.className = `w-full text-left p-3.5 rounded-xl border transition flex items-start gap-3 ${cls}`;
+                btn.onclick = () => handleAnswer(idx, false);
+                btn.innerHTML = `
+                    <span class="w-7 h-7 rounded-lg border font-mono text-xs font-bold flex items-center justify-center shrink-0 ${badgeCls}">${letter}</span>
+                    <span class="font-mono text-xs sm:text-sm leading-relaxed break-words">${escapeHtml(opt)}</span>
+                `;
+                grid.appendChild(btn);
+            });
+        }
+
+        function renderArenaQuestion() {
+            const qCard = document.getElementById('question-card');
+            const completeCard = document.getElementById('tier-complete-card');
+
+            if (appState.tierCompletedBanner) {
+                qCard.classList.add('hidden');
+                completeCard.classList.remove('hidden');
+
+                const topic = getCurrentTopicObj();
+                const masteredCount = QUESTION_BANK[topic.id][appState.level].filter((q) =>
+                    appState.masteredIds.includes(q.id)
+                ).length;
+
+                document.getElementById('tier-complete-title').textContent =
+                    `${topic.name} — ${appState.level.toUpperCase()} Cleared!`;
+
+                const nextBtn = document.getElementById('btn-unlock-next-tier');
+                if (appState.level === 'basic') {
+                    document.getElementById('tier-complete-desc').textContent =
+                        `Intermediate tier for ${topic.name} is now unlocked!`;
+                    nextBtn.textContent = '🔓 Start Intermediate Tier →';
+                } else if (appState.level === 'intermediate') {
+                    document.getElementById('tier-complete-desc').textContent =
+                        `Advanced tier for ${topic.name} is now unlocked!`;
+                    nextBtn.textContent = '🔓 Start Advanced Tier →';
+                } else {
+                    document.getElementById('tier-complete-desc').textContent =
+                        `You have mastered all 3 tiers (Basic, Intermediate, Advanced) in ${topic.name}!`;
+                    nextBtn.textContent = '🚀 Continue to Next Domain →';
+                }
+
+                document.getElementById('tier-complete-score').textContent = appState.score.toLocaleString();
+                document.getElementById('tier-complete-mastered').textContent = `${masteredCount}/20`;
+                return;
+            }
+
+            qCard.classList.remove('hidden');
+            completeCard.classList.add('hidden');
+
+            const q = getCurrentQuestions()[appState.qIndex];
+            document.getElementById('q-id-pill').textContent = q.id;
+            document.getElementById('q-tag-pill').textContent = q.tag;
+            document.getElementById('question-text').textContent = q.q;
+
+            if (!appState.answeredCurrent) {
+                document.getElementById('explanation-box').classList.add('hidden');
+            } else {
+                const expBox = document.getElementById('explanation-box');
+                const fbTitle = document.getElementById('feedback-title');
+                const expText = document.getElementById('explanation-text');
+                const wasRight = appState.selectedOption === q.ans;
+                expBox.className = wasRight
+                    ? 'rounded-xl p-4 border animate-pop-in space-y-2.5 bg-emerald-500/12 border-emerald-500/40'
+                    : 'rounded-xl p-4 border animate-pop-in space-y-2.5 bg-rose-500/12 border-rose-500/40';
+                fbTitle.className = wasRight
+                    ? 'font-mono font-extrabold text-xs sm:text-sm text-emerald-600 dark:text-emerald-400'
+                    : 'font-mono font-extrabold text-xs sm:text-sm text-rose-600 dark:text-rose-400';
+                fbTitle.textContent = wasRight ? '✅ CHECKPOINT VERIFIED' : '❌ CHECKPOINT FAILED';
+                expText.textContent = `Verified Answer: [${String.fromCharCode(65 + q.ans)}] ${q.opts[q.ans]} — ${q.exp}`;
+                expBox.classList.remove('hidden');
+            }
+
+            renderQuestionOptions(q);
+        }
+
+        function renderQuestionBank() {
+            const topic = getCurrentTopicObj();
+            const questions = getCurrentQuestions();
+            const query = (document.getElementById('bank-search')?.value || '').trim().toLowerCase();
+
+            document.getElementById('bank-heading').textContent =
+                `Question Bank — ${topic.name} (${appState.level.toUpperCase()})`;
+
+            const listEl = document.getElementById('bank-list');
+            listEl.innerHTML = '';
+
+            const filtered = questions.filter((item) => {
+                if (!query) return true;
+                return (
+                    item.q.toLowerCase().includes(query) ||
+                    item.exp.toLowerCase().includes(query) ||
+                    item.tag.toLowerCase().includes(query) ||
+                    item.opts.some((o) => o.toLowerCase().includes(query))
+                );
+            });
+
+            if (filtered.length === 0) {
+                listEl.innerHTML = `<div class="dk-card rounded-2xl p-6 text-center text-sm font-mono dk-muted">No matching Docker questions found.</div>`;
+                return;
+            }
+
+            filtered.forEach((item) => {
+                const done = appState.masteredIds.includes(item.id);
+                const card = document.createElement('div');
+                card.className = 'dk-card rounded-2xl p-4 sm:p-5 space-y-2.5';
+
+                const optsHtml = item.opts
+                    .map((opt, i) => {
+                        const right = i === item.ans;
+                        return `
+                            <div class="px-3 py-2 rounded-xl font-mono text-xs flex items-center gap-2 border ${
+                                right
+                                    ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-700 dark:text-emerald-300 font-bold'
+                                    : 'dk-subtle dk-border'
+                            }">
+                                <span>${right ? '✓' : String.fromCharCode(65 + i)}</span>
+                                <span class="break-words">${escapeHtml(opt)}</span>
+                            </div>
+                        `;
+                    })
+                    .join('');
+
+                card.innerHTML = `
+                    <div class="flex items-center justify-between gap-2 text-xs font-mono">
+                        <span class="font-bold text-sky-600 dark:text-sky-400">${item.id} • ${escapeHtml(item.tag)}</span>
+                        <span class="px-2.5 py-0.5 rounded-full ${done ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 font-bold' : 'dk-subtle dk-muted border dk-border'}">
+                            ${done ? 'Mastered' : 'Pending'}
+                        </span>
+                    </div>
+                    <p class="font-bold text-sm sm:text-base">${escapeHtml(item.q)}</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2">${optsHtml}</div>
+                    <p class="text-xs font-mono dk-subtle border dk-border rounded-xl p-3 dk-muted">${escapeHtml(item.exp)}</p>
+                `;
+                listEl.appendChild(card);
+            });
+        }
+
+        function renderStats() {
+            document.getElementById('stat-high-score').textContent = appState.highScore.toLocaleString();
+            document.getElementById('stat-mastered').textContent = `${appState.masteredIds.length}/420`;
+            document.getElementById('stat-best-streak').textContent = `${appState.bestStreak}x`;
+            const acc = appState.totalAttempts > 0
+                ? Math.round((appState.totalCorrect / appState.totalAttempts) * 100)
+                : 0;
+            document.getElementById('stat-accuracy').textContent = `${acc}%`;
+            document.getElementById('header-completed-tiers').textContent = `${countCompletedTiers()}/21 Tiers Cleared`;
+            updateAutoSaveIndicator();
+        }
+
+        function renderAll() {
+            applyTheme();
+            document.getElementById('sound-icon').textContent = appState.soundEnabled ? '🔊' : '🔇';
+            renderStats();
+            renderTopicPills();
+            renderArenaHeader();
+            renderArenaQuestion();
+            if (appState.tab === 'bank') renderQuestionBank();
+        }
+
+        function escapeHtml(str) {
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        // --- KEYBOARD SHORTCUTS ---
+        window.addEventListener('keydown', (e) => {
+            if (!document.getElementById('custom-modal').classList.contains('hidden')) {
+                if (e.key === 'Escape') {
+                    document.getElementById('custom-modal').classList.add('hidden');
+                    document.getElementById('custom-modal').classList.remove('flex');
+                }
+                return;
+            }
+            if (appState.tab !== 'arena' || appState.tierCompletedBanner) return;
+            if (document.activeElement && document.activeElement.tagName === 'INPUT') return;
+
+            const key = e.key.toLowerCase();
+            const map = { '1': 0, 'a': 0, '2': 1, 'b': 1, '3': 2, 'c': 2, '4': 3, 'd': 3 };
+
+            if (!appState.answeredCurrent && key in map) {
+                e.preventDefault();
+                handleAnswer(map[key], false);
+            } else if (appState.answeredCurrent && key === 'enter') {
+                e.preventDefault();
+                nextQuestion();
+            }
+        });
+
+        // --- INITIALIZE & RESUME SAVED CHECKPOINT ---
+        switchTab(appState.tab || 'arena');
+        renderAll();
+    </script>
+</body>
+</html>
