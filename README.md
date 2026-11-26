@@ -1,6 +1,10 @@
 # Docker-Ops-Arena
 
-A self-contained, single-file interactive Docker quiz and practice web app built with a **Container Mission Control (Bento HUD)** UI, **Light/Dark theme** support, and `localStorage` auto-save/resume.
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/PLACEHOLDER_IMAGE_ID" alt="Docker-Ops-Arena Container Mission Control interface showing an active Docker quiz, mission score, and domain progress" width="100%">
+</p>
+
+A self-contained, single-file interactive Docker quiz and practice web app built with a **Container Mission Control (Bento HUD)** UI, **Light/Dark theme** support, and `localStorage` auto-save/resume functionality.
 
 ## Key Features
 - **420 Curated Docker Questions** across **7 domains** (`IMG`, `CNT`, `DFB`, `NET`, `VOL`, `CMP`, `SEC`).
